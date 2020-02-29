@@ -1,0 +1,38 @@
+body {
+  background-color: rgb(48, 48, 48);
+  color: rgb(255, 255, 255);
+}
+
+.idg-img {
+  position: relative;
+
+  /* so cmd-r's little fingers can hang over the edge of the page a little */
+  bottom: -8px;
+  z-index: 1;
+}
+
+links-card {
+  ul {
+    li img.icon {
+      max-height: 24px;
+      max-width: 24px;
+    }
+  }
+}
+
+links-card, colophon {
+  margin-bottom: 10px;
+}
+
+community cmdr {
+  text-align: center;
+  display: block;
+  
+  div {
+    display: inline-block;
+  }
+}
+
+footer {
+  text-align: center;
+}

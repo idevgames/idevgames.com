@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <links-card class="card text-dark bg-light shadow">
+    <h4 class="card-header">Links and News</h4>
+    <links class="card-body">
+      <ul class="list-unstyled">
+        {% set links = get_section(path='links/_index.md') %}
+        {% for link in paginator.pages | sort(attribute='date') | reverse %}
+          <li>
+            <img src="{{  get_url(path='icons/' ~ link.extra.icon) | safe }}" class="icon"/>
+            <span class="font-weight-light">{{ link.extra.contributed_by }} shared on {{ link.date }}:</span>
+            <a href="{{ link.extra.url | safe }}">{{ link.extra.url | split(pat='/') | nth(n=2) }}: {{ link.title }}</a>
+            {{ link.description }}
+          </li>
+        {% endfor %}
+      </ul>
+      <nav>
+        <ul class="pagination justify-content-center">
+          <li class="page-item{% if not paginator.previous %} disabled{% endif %}">
+            <a class="page-link" href="{{ paginator.previous }}" area-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+          {% for page in range(start=1, end=paginator.number_pagers + 1) %}
+            <li class="page-item {% if page == paginator.current_index %} disabled{% endif %}">
+              <a class="page-link" href="{{ get_url(path='links/page/' ~ page) | safe }}">{{ page }}</a>
+            </li>
+          {% endfor %}
+          <li class="page-item{% if not paginator.next %} disabled{% endif %}">
+            <a class="page-link" href="{{ paginator.next }}" aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </links>
+  </links-card>
+{% endblock %}

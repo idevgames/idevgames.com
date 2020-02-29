@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <links-card class="card text-dark bg-light shadow">
+    <h4 class="card-header">Links and News</h4>
+    <links class="card-body">
+      <ul class="list-unstyled">
+        {% set links = get_section(path='links/_index.md') %}
+        {% for link in links.pages | sort(attribute='date') | reverse %}
+          <li>
+            <img src="{{  get_url(path='icons/' ~ link.extra.icon) | safe }}" class="icon"/>
+            <span class="font-weight-light">{{ link.extra.contributed_by }} shared on {{ link.date }}:</span>
+            <a href="{{ link.extra.url | safe }}">{{ link.extra.url | split(pat='/') | nth(n=2) }}: {{ link.title }}</a>
+            {{ link.description }}
+          </li>
+          {% if loop.index > 10 %}
+            {% break %}
+          {% endif %}
+        {% endfor %}
+      </ul>
+      {% if links.pages | length > 10 %}
+        <p class="card-text text-right">
+          <a href="{{ links.permalink | safe }}">See more &rarr;</a>
+        </p>
+      {% endif %}
+    </links>
+  </links-card>
+  <colophon class="card-group shadow">
+    <about class="card text-dark bg-light">
+      <h4 class="card-header">About</h4>
+      <div class="card-body">
+        <p class="card-text">
+          iDevGames is and has been <em>the</em> place for Mac and iOS game
+          programmers to share ideas, knowledge, code, graphics, audio, and a
+          helping hand to each other since it was founded by Carlos Camacho
+          1998. In addition to providing a home for a large community of
+          developers, iDevGames also periodically runs contests to encourage new
+          game development. iDevGames runs the largest Mac game programming
+          contest, <a href="http://www.udevgames.com/">uDevGames</a>, which
+          to-date has awarded over $100,000 in prizes.
+        </p>
+        <p class="card-text">
+          Through contests and community support, iDevGames has been the
+          catalyst for fostering the careers of many game developers and
+          creation of a multitude of new games, and has the goal of continuing
+          to do so.
+        </p>
+      </div>
+    </about>
+    <community class="card text-dark bg-light">
+      <h4 class="card-header">Community</h4>
+      <div class="card-body">
+        <p class="card-text">
+          You can have a chat with the iDevGames community either on
+          <a href="https://discord.gg/r6fxVBH" title="Join our Discord server"
+             style="text-decoration: none;">
+            <img src="{{ get_url(path='discord.svg') | safe }}"
+                 height="24px"/>
+         </a>
+          or by connecting via an IRC client with an
+          <a href="https://freenode.net/kb/answer/registration">authed alias</a>
+          to <code>irc://freenode.net:7000/#idevgames</code>.
+        </p>
+        <cmdr>
+          <div>
+            <img src="{{ get_url(path='cmdr.png') | safe }}"
+                height="175px"/>
+          </div>
+        </cmdr>
+      </div>
+    </community>
+  </colophon>
+{% endblock %}
