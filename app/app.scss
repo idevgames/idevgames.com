@@ -1,0 +1,63 @@
+@import 'node_modules/bootstrap/scss/bootstrap';
+
+body {
+  background-color: rgb(48, 48, 48);
+  color: rgb(255, 255, 255);
+  
+  > * {
+    /* tighten up the page a bit to make it feel more like the bootstrap4
+       site did */
+    max-width: 1140px !important;
+  }
+}
+
+header {
+  /* so cmd-r's little fingers can hang over the edge of the page a little */
+  position: relative;
+  bottom: -8px;
+  z-index: 1;
+}
+
+.rounded-corners-top {
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+}
+
+.rounded-corners-bottom {
+  border-bottom-left-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+}
+
+#idg-img {
+  background: url("/static/udevgames_logo.png") no-repeat;
+  height: 85px;
+  width: 357px;
+}
+
+.superbox {
+  @include make-container();
+  @extend .bg-light;
+  @extend .text-dark;
+  @extend .rounded-corners-bottom;
+  @extend .p-3 ;
+  @extend .rounded;
+}
+
+cmdr {
+  text-align: center;
+  display: block;
+  
+  div {
+    display: inline-block;
+  }
+}
+
+footer {
+  @include make-container();
+  @extend .fs-6;
+  @extend .lh-1;
+  @extend .text-muted;
+  @extend .text-center;
+
+  text-align: center;
+}

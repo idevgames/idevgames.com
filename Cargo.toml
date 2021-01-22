@@ -1,0 +1,23 @@
+[package]
+name = "idevgames"
+version = "0.1.0"
+authors = ["Christopher R. Miller <xpm@mysteriouspants.com>"]
+edition = "2018"
+publish = false # let's not foist this onto crates.io as a crate
+
+[dependencies]
+actix-files = "0.5.0"
+actix-web = { version = "3.3.2", features = [ "secure-cookies" ] }
+actix-session = "0.4.0"
+chrono = "0.4.19"
+clap = "3.0.0-beta.2"
+diesel = { version = "1.4.5", features = [ "chrono", "sqlite", "r2d2" ] }
+diesel_migrations = "1.4.0"
+dotenv = "0.15.0"
+env_logger = "0.8.2"
+pulldown-cmark = "0.8.0"
+# don't bump until actix-web 4.0.0 is released, which uses tokio 1
+reqwest = { version = "0.10.10", features = [ "json" ] }
+serde = { version = "1.0.119", features = [ "derive" ] }
+tera = "1.6.1"
+thiserror = "1.0.23"
