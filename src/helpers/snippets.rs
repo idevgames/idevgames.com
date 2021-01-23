@@ -67,7 +67,6 @@ impl SnippetList {
          (snippet_count as f32 / page_size as f32).ceil() as i64,
          1
         );
-        println!("snippet_count: {}, page_size: {}, total_pages: {}", snippet_count, page_size, total_pages);
 
         Ok(SnippetList {
             taxonomy: taxonomy.to_owned(),
