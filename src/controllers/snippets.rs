@@ -14,7 +14,6 @@ use super::HandlerError;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct SnippetContext {
-    id: i32,
     hidden: bool,
     title: String,
     icon: Option<String>,
@@ -28,7 +27,6 @@ pub struct SnippetContext {
 impl From<&Snippet> for SnippetContext {
     fn from(snippet: &Snippet) -> Self {
         SnippetContext {
-            id: snippet.id,
             hidden: snippet.hidden,
             title: snippet.title.clone(),
             icon: snippet.icon.clone(),

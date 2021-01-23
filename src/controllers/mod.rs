@@ -48,7 +48,7 @@ impl ResponseError for HandlerError {
             HandlerError::DatabaseError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             HandlerError::PoolError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             HandlerError::HttpError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            HandlerError::ParseError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            HandlerError::ParseError(_) => StatusCode::BAD_REQUEST,
             HandlerError::DieselError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             HandlerError::NotFound => StatusCode::NOT_FOUND,
             HandlerError::SessionError(_) => StatusCode::BAD_REQUEST,

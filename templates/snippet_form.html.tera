@@ -56,7 +56,7 @@
   <div class="row">
     <div class="col">
       <label for="hidden" class="form-label">Visibility</label>
-      <select id="hidden" class="form-select" aria-label="Visibility">
+      <select id="hidden" name="hidden" class="form-select" aria-label="Visibility">
         <option {% if snippet.hidden %}selected {% endif %}
             value="true">
           Hidden
@@ -72,8 +72,10 @@
     </div>
     <div class="col">
       <label for="summary" class="form-label">Summary</label>
-      <input type="text" class="form-control" id="summary" name="summary"
-          aria-describedby="summary-help" value="{{ snippet.summary }}"/>
+      <textarea class="form-control" id="summary" name="summary" rows="3"
+          aria-describedby="summary-help">
+        {{- snippet.summary -}}
+      </textarea>
       <div id="summary-help" class="form-text">
         Describe this snippet in about a sentence, maybe two.
       </div>
@@ -94,7 +96,7 @@
     </div>
     <div class="col">
       <label for="icon" class="form-label">Icon</label>
-      <select id="icon" class="form-select" aria-label="Icon">
+      <select id="icon" name="icon" class="form-select" aria-label="Icon">
         <option {% if snippet.icon is defined %}selected {% endif %}>
           None
         </option>

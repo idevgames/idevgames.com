@@ -49,7 +49,7 @@ impl Serve {
                 )
                 .route(
                     "/snippets/{taxonomy}/{snippet_id}",
-                    web::patch().to(crate::controllers::snippets::update),
+                    web::post().to(crate::controllers::snippets::update),
                 )
                 .route(
                     "/snippets/{taxonomy}/{snippet_id}",
