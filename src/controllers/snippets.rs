@@ -5,7 +5,11 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     application_context::ApplicationContext,
-    helpers::admin_only::{AdminOnly, AdminOnlyContext},
+    helpers::{
+        admin_only::{AdminOnly, AdminOnlyContext},
+        snippets::SnippetList,
+        user_optional::{UserOptional, UserOptionalContext},
+    },
     icons::Icon,
     models::Snippet,
 };
@@ -76,8 +80,50 @@ struct FormContext {
     flash: Option<Flash>,
 }
 
-// TODO: implement this so that anyone can view it.
-// GET /snippets/{taxonomy}?page={page_number}, shows a part of the snippets
+#[derive(Debug, Deserialize)]
+pub struct IndexQueryParams {
+    page: Option<i32>,
+    show_hidden: Option<bool>,
+}
+
+// GET /snippets/{taxonomy}?page={page_number}&show_hidden={show_hidden}
+pub async fn index(
+    ctxt: web::Data<ApplicationContext>,
+    session: Session,
+    web::Path(taxonomy): web::Path<String>,
+    query: web::Query<IndexQueryParams>,
+) -> Result<HttpResponse, super::HandlerError> {
+    let conn = ctxt.db_pool.get()?;
+    let user = UserOptional::from_session(&conn, &session)?;
+    let show_hidden = user.is_admin() && query.show_hidden.unwrap_or(false);
+    let page = query.page.unwrap_or(0);
+    let page_size = 5;
+
+    let snippetlist = SnippetList::new(
+        &conn,
+        page,
+        page_size,
+        &taxonomy,
+        user.is_admin(),
+        true,
+        !show_hidden,
+    )?;
+
+    #[derive(Debug, Serialize)]
+    struct Context {
+        auth: UserOptionalContext,
+        snippetlist: SnippetList,
+    }
+
+    let context = Context {
+        auth: user.to_context(),
+        snippetlist: snippetlist,
+    };
+
+    Ok(HttpResponse::Ok()
+        .set(ContentType::html())
+        .body(ctxt.render_template("snippetlist.html.tera", &context)))
+}
 
 // GET /snippets/{taxonomy}/new, renders the form
 pub async fn new(

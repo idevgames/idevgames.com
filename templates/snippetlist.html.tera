@@ -1,0 +1,9 @@
+{% extends "layout.html.tera" %}
+{% import "macros.html.tera" as macros %}
+{% block content %}
+<div class="row">
+  <div class="col">
+    {{ macros::show_snippetlist(snippetlist=snippetlist) }}
+  </div>
+</div>
+{% endblock %}

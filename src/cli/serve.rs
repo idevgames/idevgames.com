@@ -26,6 +26,11 @@ impl Serve {
                 .wrap(CookieSession::signed(&secret.as_bytes()).secure(false))
                 .app_data(application_context.clone())
                 .route("/", web::get().to(crate::controllers::homepage::homepage))
+                .route("/snippets/{taxonomy}", web::get().to(crate::controllers::snippets::index))
+                .route(
+                    "/control-plane",
+                    web::get().to(crate::controllers::plane::show),
+                )
                 .route(
                     "/snippets/{taxonomy}/new",
                     web::get().to(crate::controllers::snippets::new),
@@ -35,10 +40,7 @@ impl Serve {
                     "/github_callback",
                     web::get().to(crate::controllers::auth::github_callback),
                 )
-                .route(
-                    "/logout",
-                    web::delete().to(crate::controllers::auth::logout),
-                )
+                .route("/logout", web::post().to(crate::controllers::auth::logout))
                 .route(
                     "/snippets/{taxonomy}",
                     web::post().to(crate::controllers::snippets::create),
@@ -53,7 +55,7 @@ impl Serve {
                 )
                 .route(
                     "/snippets/{taxonomy}/{snippet_id}",
-                    web::delete().to(crate::controllers::snippets::delete),
+                    web::post().to(crate::controllers::snippets::delete),
                 )
                 .service(Files::new("/static", "static"))
         })

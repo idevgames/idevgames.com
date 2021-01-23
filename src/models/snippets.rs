@@ -24,6 +24,19 @@ pub struct Snippet {
 }
 
 impl Snippet {
+    pub fn count(conn: &DbConn, visible_only: bool, the_taxonomy: &str) -> Result<i64, ModelError> {
+        use crate::schema::snippets::dsl::{hidden, snippets, taxonomy};
+        use diesel::{dsl::count_star, prelude::*};
+
+        let n = snippets
+            .select(count_star())
+            .filter(hidden.eq(!visible_only))
+            .filter(taxonomy.eq(the_taxonomy))
+            .first(conn)?;
+
+        Ok(n)
+    }
+
     pub fn create(
         conn: &DbConn,
         the_creator_id: i32,

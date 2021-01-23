@@ -1,5 +1,42 @@
 {% extends "layout.html.tera" %}
+{% import "macros.html.tera" as macros %}
 {% block content %}
+
+<div class="row">
+  <div class="col">
+    <h4>uDevGames</h4>
+    {{ macros::show_snippetlist(snippetlist=udevgames) }}
+    <p>
+      {% if show_controls %}
+        <a href="/snippets/udevgames/new">New</a>
+      {% endif %}
+      {% if show_controls and udevgames.total_pages > 1 %}
+        &middot;
+      {% endif %}
+      {% if udevgames.total_pages > 1 %}
+        <a href="/snippets/udevgames?page=1">More &rarr;</a>
+      {% endif %}
+    </p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    <h4>Links and news</h4>
+    {{ macros::show_snippetlist(snippetlist=links) }}
+    <p>
+      {% if show_controls %}
+        <a href="/snippets/links/new">New</a>
+      {% endif %}
+      {% if show_controls and links.total_pages > 1 %}
+        &middot;
+      {% endif %}
+      {% if links.total_pages > 1 %}
+        <a href="/snippets/links?page=1">More &rarr;</a>
+      {% endif %}
+    </p>
+  </div>
+</div>
 
 <div class="row">
   <div class="col-md">

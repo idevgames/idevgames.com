@@ -29,9 +29,7 @@
           <p>
             &copy; 1998 - {{ now() | date(format='%Y') }}
             <a href="https://www.idevgames.com/">iDevGames</a>. All rights
-            reserved. &bull; This site uses cookies only when you log in to
-            track that you are logged in; we don't use any analytics or other
-            tracking. If you do not accept this cookie, don't log in. &bull;
+            reserved. &bull;
             Found a bug? Please report it either on
             <a href="https://discord.gg/r6fxVBH">Discord</a> or on
             <a href="https://github.com/idevgames/idevgames.com">Github</a>.

@@ -63,6 +63,10 @@ impl UserOptional {
             },
         };
     }
+
+    pub fn is_admin(&self) -> bool {
+        self.permissions.contains(&"admin".to_owned())
+    }
 }
 
 #[cfg(test)]

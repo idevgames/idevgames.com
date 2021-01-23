@@ -83,6 +83,7 @@ async fn auth_with_github(
 
 /// Logs the user out. Pitches all the cookies we set.
 pub async fn logout(ctxt: web::Data<ApplicationContext>, session: Session) -> HttpResponse {
+    session.clear();
     session.purge();
 
     #[derive(Debug, Serialize)]

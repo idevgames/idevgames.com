@@ -1,0 +1,24 @@
+{% extends "layout.html.tera" %}
+{% block content %}
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    {% if auth.user is object %}
+      <h4>Logout</h4>
+      <div class="text-center">
+        <a href="/logout" data-method="delete" class="btn btn-danger"
+            rel="nofollow">
+          Logout
+        </a>
+      </div>
+    {% else %}
+      <h4>Login</h4>
+      <p>Login if you are already an admin to alter the content on the site.</p>
+      <div class="text-center">
+        <a href="/login" class="btn btn-primary">Login</a>
+      </div>
+    {% endif %}
+  </div>
+  <div class="col-sm-2"></div>
+</div>
+{% endblock %}

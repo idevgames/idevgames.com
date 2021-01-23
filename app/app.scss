@@ -43,6 +43,15 @@ header {
   @extend .rounded;
 }
 
+.snippetlist {
+  @extend .list-unstyled;
+
+  li img {
+    max-height: 24px;
+    max-width: 24px;
+  }
+}
+
 cmdr {
   text-align: center;
   display: block;

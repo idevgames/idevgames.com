@@ -1,5 +1,6 @@
 pub mod auth;
 pub mod homepage;
+pub mod plane;
 pub mod snippets;
 
 use actix_web::http::StatusCode;

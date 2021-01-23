@@ -1,4 +1,5 @@
 pub mod admin_only;
+pub mod snippets;
 pub mod user_optional;
 
 use actix_session::Session;
