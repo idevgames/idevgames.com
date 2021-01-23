@@ -56,4 +56,8 @@ impl AdminOnly {
             },
         };
     }
+
+    pub fn get_id(&self) -> i32 {
+        self.user.0.id
+    }
 }

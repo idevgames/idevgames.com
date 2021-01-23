@@ -1,5 +1,3 @@
-use std::fs::create_dir_all;
-
 use crate::db::DbConn;
 use chrono::{NaiveDateTime, Utc};
 
@@ -85,6 +83,7 @@ impl Snippet {
         Ok(snippet)
     }
 
+    #[allow(dead_code)]
     pub fn find_all(
         conn: &DbConn,
         visible_only: bool,
@@ -174,15 +173,15 @@ impl Default for Snippet {
         Snippet {
             id: 0,
             creator_id: 0,
-            taxonomy: "None".to_owned(),
+            taxonomy: "".to_owned(),
             hidden: true,
-            title: "The title of this snippet".to_owned(),
+            title: "".to_owned(),
             icon: None,
-            shared_by: "Who shared this, in like Discord or something".to_owned(),
+            shared_by: "".to_owned(),
             shared_on: Utc::now().naive_utc(),
-            summary: "A sentence or two about this snippet".to_owned(),
-            description: "A paragraph or so about this snippet. Currently unused.".to_owned(),
-            href: "The URL where this snippet goes!".to_owned(),
+            summary: "".to_owned(),
+            description: "".to_owned(),
+            href: "".to_owned(),
             created_at: Utc::now().naive_utc(),
             updated_at: Utc::now().naive_utc(),
         }

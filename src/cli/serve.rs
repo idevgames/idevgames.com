@@ -3,7 +3,7 @@ use actix_session::CookieSession;
 use actix_web::{middleware::Logger, web, App, HttpServer};
 use clap::Clap;
 
-use crate::{application_context::ApplicationContext, controllers::snippets};
+use crate::application_context::ApplicationContext;
 
 /// Start the iDevGames website
 #[derive(Clap, Debug)]
@@ -38,6 +38,22 @@ impl Serve {
                 .route(
                     "/logout",
                     web::delete().to(crate::controllers::auth::logout),
+                )
+                .route(
+                    "/snippets/{taxonomy}",
+                    web::post().to(crate::controllers::snippets::create),
+                )
+                .route(
+                    "/snippets/{taxonomy}/{snippet_id}/edit",
+                    web::get().to(crate::controllers::snippets::edit),
+                )
+                .route(
+                    "/snippets/{taxonomy}/{snippet_id}",
+                    web::patch().to(crate::controllers::snippets::update),
+                )
+                .route(
+                    "/snippets/{taxonomy}/{snippet_id}",
+                    web::delete().to(crate::controllers::snippets::delete),
                 )
                 .service(Files::new("/static", "static"))
         })
