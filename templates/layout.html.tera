@@ -17,8 +17,10 @@
       </a>
     </header>
     
-    {% block content %}
-    {% endblock %}
+    <div class="superbox">
+      {% block content %}
+      {% endblock %}
+    </div>
 
     <footer>
       <div class="row m-2">

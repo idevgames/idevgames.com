@@ -1,3 +1,4 @@
+pub mod admin_only;
 pub mod user_optional;
 
 use actix_session::Session;
@@ -32,6 +33,12 @@ pub enum AuthFromSessionError {
 
     #[error("GithubUserRecord not found for user id {0}")]
     GithubUserRecordNotFound(i32),
+
+    #[error("Role not matched, user should have {0} role but only has {1:?} roles")]
+    RoleNotMatched(String, Vec<String>),
+
+    #[error("No user was logged in when required")]
+    NoUser,
 }
 
 fn auth_from_session(

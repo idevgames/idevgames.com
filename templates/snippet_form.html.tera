@@ -1,0 +1,99 @@
+{% extends "layout.html.tera" %}
+{% block content %}
+<form action="{{ action_url }}" method="post">
+  <div class="row">
+    <div class="col">
+      <h2>Create or update snippet</h2>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <label for="title" class="form-label">Title</label>
+      <input type="text" class="form-control" id="title" name="title"
+          aria-describedby="title-help" value="{{ snippet.title }}"/>
+      <div id="title-help" class="form-text">
+        The title of the link - the blue part that you click on.
+      </div>
+    </div>
+    <div class="col">
+      <label for="shared_by" class="form-label">Shared by</label>
+      <input type="text" class="form-control" id="shared_by" name="shared_by"
+          aria-describedby="shared_by-help" value="{{ snippet.shared_by }}"/>
+      <div id="shared_by-help" class="form-text">
+        Who shared this with the community? Prefer Discord names to real names.
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <label for="href" class="form-label">URL</label>
+      <input type="text" class="form-control" id="href" name="href"
+          aria-describedby="href-help" value="{{ snippet.href }}"/>
+      <div id="href-help" class="form-text">
+        The URL to whatever interesting thing this snippet is about.
+      </div>
+    </div>
+    <div class="col">
+      <label for="shared_on" class="form-label">Shared on</label>
+      <input type="text" class="form-control" id="shared_on" name="shared_on"
+          aria-describedby="shared_on-help" value="{{ snippet.shared_on }}"/>
+      <div id="shared_on-help" class="form-text">
+        When was this shared, in ISO-8601 date format please.
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <label for="hidden" class="form-label">Visibility</label>
+      <select id="hidden" class="form-select" aria-label="Visibility">
+        <option {% if snippet.hidden %}selected {% endif %}value="true">Hidden</option>
+        <option {% if not snippet.hidden %}selected {% endif %}value="false">Visible</option>
+      </select>
+      <div id="hidden-help" class="form-text">
+        Control whether this snippet is visible to the public or not.
+      </div>
+    </div>
+    <div class="col">
+      <label for="summary" class="form-label">Summary</label>
+      <input type="text" class="form-control" id="summary" name="summary"
+          aria-describedby="summary-help" value="{{ snippet.summary }}"/>
+      <div id="summary-help" class="form-text">
+        Describe this snippet in about a sentence, maybe two.
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <label for="description" class="form-label">Description</label>
+      <textarea class="form-control" id="description" rows="3"
+          name="description" aria-describedby="description-help">
+        {{- snippet.description -}}
+      </textarea>
+      <div id="description-help" class="form-text">
+        Describe this snippet, in about a paragraph. This isn't used on the site
+        currently, so leaving this blank is a-ok.
+      </div>
+    </div>
+    <div class="col">
+      <label for="icon" class="form-label">Icon</label>
+      <select id="icon" class="form-select" aria-label="Icon">
+        <option {% if snippet.icon is defined %}selected {% endif %}>None</option>
+        {% for icon in icons %}
+          <option {% if snippet.icon == icon.file %}selected {% endif %}value="{{ icon.file }}">{{ icon.display_name }}</option>
+        {% endfor %}
+      </select>
+      <div id="icon-help" class="form-text">
+        Pick the icon used for this link. Adding icons requires a code-change to
+        the website.
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col"></div>
+    <div class="col text-center">
+      <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+    <div class="col"></div>
+  </div>
+</form>
+{% endblock %}

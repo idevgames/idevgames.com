@@ -1,5 +1,6 @@
 pub mod auth;
 pub mod homepage;
+pub mod snippets;
 
 use actix_web::http::StatusCode;
 use actix_web::{http::header::ContentType, Error as ActixError, HttpResponse, ResponseError};
@@ -36,6 +37,9 @@ pub enum HandlerError {
 
     #[error("Diesel Error {0}")]
     DieselError(#[from] diesel::result::Error),
+
+    #[error("Not authorized")]
+    NotAuthorized,
 }
 
 impl ResponseError for HandlerError {
@@ -48,6 +52,7 @@ impl ResponseError for HandlerError {
             HandlerError::DieselError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             HandlerError::NotFound => StatusCode::NOT_FOUND,
             HandlerError::SessionError(_) => StatusCode::BAD_REQUEST,
+            HandlerError::NotAuthorized => StatusCode::UNAUTHORIZED,
         }
     }
 
@@ -70,6 +75,8 @@ impl From<AuthFromSessionError> for HandlerError {
             AuthFromSessionError::DbQueryError(e) => HandlerError::DatabaseError(e),
             AuthFromSessionError::SessionRetrieveError(e) => HandlerError::SessionError(e),
             AuthFromSessionError::GithubUserRecordNotFound(_uid) => HandlerError::NotFound,
+            AuthFromSessionError::RoleNotMatched(_, _) => HandlerError::NotAuthorized,
+            AuthFromSessionError::NoUser => HandlerError::NotAuthorized,
         }
     }
 }

@@ -1,15 +1,13 @@
 {% extends "layout.html.tera" %}
 {% block content %}
-<div class="superbox">
-  <div class="row">
-    <div class="col-sm-2"></div>
-    <div class="col-sm-8">
-      <h4>You have been logged out</h4>
-      <p>
-        We hope to see you again!
-      </p>
-    </div>
-    <div class="col-sm-2"></div>
+<div class="row">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-8">
+    <h4>You have been logged out</h4>
+    <p>
+      We hope to see you again!
+    </p>
   </div>
+  <div class="col-sm-2"></div>
 </div>
 {% endblock %}

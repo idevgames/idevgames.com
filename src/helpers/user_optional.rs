@@ -1,6 +1,3 @@
-//! This request guard is also a template helper because it provides the user
-//! and permissions to a template context.
-
 use crate::{
     db::DbConn,
     helpers::TemplateContextUser,
@@ -11,9 +8,6 @@ use serde::Serialize;
 
 use super::{auth_from_session, AuthFromSessionError};
 
-/// Request guard for which there may or may not be a logged in user. This is
-/// for pages which can be viewed by anyone but which may change their controls
-/// when viewed by someone who is logged in.
 pub struct UserOptional {
     /// The current user, or is it?
     user: Option<(User, GithubUserRecord)>,

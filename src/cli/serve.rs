@@ -3,7 +3,7 @@ use actix_session::CookieSession;
 use actix_web::{middleware::Logger, web, App, HttpServer};
 use clap::Clap;
 
-use crate::application_context::ApplicationContext;
+use crate::{application_context::ApplicationContext, controllers::snippets};
 
 /// Start the iDevGames website
 #[derive(Clap, Debug)]
@@ -26,6 +26,10 @@ impl Serve {
                 .wrap(CookieSession::signed(&secret.as_bytes()).secure(false))
                 .app_data(application_context.clone())
                 .route("/", web::get().to(crate::controllers::homepage::homepage))
+                .route(
+                    "/snippets/{taxonomy}/new",
+                    web::get().to(crate::controllers::snippets::new),
+                )
                 .route("/login", web::get().to(crate::controllers::auth::login))
                 .route(
                     "/github_callback",

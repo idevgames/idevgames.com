@@ -78,7 +78,7 @@ https://github.com/settings/applications/new
 
 **name**: iDevGames-your-github-alias  
 **homepage url**: https://www.idevgames.com/  
-**description**: A games development community.
+**description**: A games development community.  
 **callback**: http://localhost:4000/gh_callback  
 
 Note that if you use WSL2 you will have to update that callback to your VM's
