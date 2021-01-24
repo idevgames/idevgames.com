@@ -109,6 +109,91 @@ cargo run permission revoke -u your_github_user_name -p admin
 
 Happy hacking!
 
+## Deploying
+
+Put the built program on a machine and run it. If you're patching it for
+iDevGames use, then the process of deploying is very complicated: poke
+mysteriouspants until he does it (he hasn't set up automation because things
+seldom change).
+
+If you're, for some reason, doing this yourself, these are mysteriouspants'
+notes on the matter. They may be of some help for you!
+
+Prepare the server
+
+```sh
+ssh mysteriouspants.com:
+    # create user
+    sudo adduser --disabled-password idevgames
+    # enable ssh for this user - this is how we rsync new releases up
+    sudo mkdir -p ~idevgames/.ssh
+    sudo cp ~/.ssh/authorized_keys  ~idevgames/.ssh/authorized_keys
+    sudo chown idevgames:idevgames ~idevgames/.ssh/authorized_keys
+    sudo vim /etc/systemd/system/idevgames.service
+```
+
+The service file ought to look like this:
+
+```
+[Unit]
+Description=iDevGames Web Server
+After=network.target
+
+[Service]
+type=simple
+User=idevgames
+WorkingDirectory=/home/idevgames
+ExecStart=/home/idevgames/idevgames serve
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Add necessary environment variables.
+
+```sh
+ssh idevgames@mysteriouspants.com:
+  vim .env
+```
+
+The necessary environment variables are this:
+
+```
+DATABASE_URL=db/app.sqlite
+IDG_WORKERS=2
+IDG_PORT=4000
+IDG_MAXDBCONS=4
+IDG_ADDRESS=12.0.0.1
+IDG_COOKIE_SECRET=$(openssl rand -base64 32)
+GH_CLIENT_ID=
+GH_CLIENT_SERET=
+```
+
+Finally, run `deploy.sh` locally to build a release build and rsync the results
+up, and kick the service on. You should mark the service to start on boot as
+well. Because wild reboots happen.
+
+```sh
+local:
+    ./deploy.sh
+ssh mysteriouspants.com:
+    sudo systemctl enable idevgames
+```
+
+From here, the service can be served behind a reverse proxy. I use nginx.
+
+```
+# /etc/nginx/sites-available/www.idevgames.com
+server {
+  server_name         www.idevgames.com;
+  access_log          off;
+  location / {
+    proxy_pass http://127.0.0.1:4000;
+  }
+}
+```
+
 ## Modification/Licensing
 
 We want you to be able to use this software regardless of who you may be, what
