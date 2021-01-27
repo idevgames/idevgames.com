@@ -18,6 +18,8 @@ use super::HandlerError;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct SnippetContext {
+    id: i32,
+    taxonomy: String,
     hidden: bool,
     title: String,
     icon: Option<String>,
@@ -31,6 +33,8 @@ pub struct SnippetContext {
 impl From<&Snippet> for SnippetContext {
     fn from(snippet: &Snippet) -> Self {
         SnippetContext {
+            id: snippet.id,
+            taxonomy: snippet.taxonomy.clone(),
             hidden: snippet.hidden,
             title: snippet.title.clone(),
             icon: snippet.icon.clone(),
@@ -277,7 +281,7 @@ pub async fn delete(
     #[derive(Debug, Serialize)]
     struct Context {
         auth: AdminOnlyContext,
-    };
+    }
 
     let context = Context {
         auth: user.to_context(),
@@ -288,10 +292,35 @@ pub async fn delete(
         .body(ctxt.render_template("snippet_deleted.html.tera", &context)))
 }
 
-// don't bother implementing this, these are snippets, not blog posts. while we
-// have a big old discription field, i don't know that we want to use it yet, if
-// at all.
 // GET /snippets/{taxonomy}/{snippet_id} display a specific snippet
+pub async fn show(
+  ctxt: web::Data<ApplicationContext>,
+  session: Session,
+  web::Path((taxonomy, snippet_id)): web::Path<(String, i32)>,
+) -> Result<HttpResponse, super::HandlerError> {
+  let conn = ctxt.db_pool.get()?;
+  let user = UserOptional::from_session(&conn, &session)?;
+  let _ = taxonomy; //Useless for this context but included to keep the API consistent.
+
+  #[derive(Debug, Serialize)]
+  struct Context {
+    auth: UserOptionalContext,
+    snippet: SnippetContext,
+    is_admin: bool,
+  }
+
+  let snippet = Snippet::find_by_id(&conn, snippet_id)?;
+
+  let context = Context {
+    auth: user.to_context(),
+    snippet: SnippetContext::from(&snippet),
+    is_admin: user.is_admin(),
+  };
+
+  Ok(HttpResponse::Ok()
+    .set(ContentType::html())
+    .body(ctxt.render_template("snippet.html.tera", &context)))
+}
 
 fn parse_date(date: &str) -> Result<NaiveDateTime, DTParseError> {
     NaiveDateTime::parse_from_str(&format!("{} 00:00:00", date), "%Y-%m-%d %H:%M:%S")

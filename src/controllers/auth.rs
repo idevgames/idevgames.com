@@ -19,7 +19,7 @@ pub fn login(ctxt: web::Data<ApplicationContext>) -> HttpResponse {
     struct Context {
         github_oauth_url: String,
         suppress_auth_controls: bool,
-    };
+    }
 
     let context = Context {
         github_oauth_url: ctxt.github_client.authorization_url(),

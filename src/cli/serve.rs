@@ -57,6 +57,10 @@ impl Serve {
                     "/snippets/{taxonomy}/{snippet_id}",
                     web::post().to(crate::controllers::snippets::delete),
                 )
+                .route(
+                    "/snippets/{taxonomy}/{snippet_id}",
+                    web::get().to(crate::controllers::snippets::show),
+                )
                 .service(Files::new("/static", "static"))
         })
         .bind(format!("{}:{}", address, port))
