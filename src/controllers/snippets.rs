@@ -153,12 +153,24 @@ pub async fn new(
         .body(ctxt.render_template("snippet_form.html.tera", &context)))
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+pub struct CreateSnippetContext {
+    hidden: bool,
+    title: String,
+    icon: Option<String>,
+    shared_by: String,
+    shared_on: String,
+    summary: String,
+    description: String,
+    href: String,
+}
+
 // POST /snippets/{taxonomy} create a new snippet
 pub async fn create(
     ctxt: web::Data<ApplicationContext>,
     session: Session,
     web::Path(taxonomy): web::Path<String>,
-    form: web::Form<SnippetContext>,
+    form: web::Form<CreateSnippetContext>,
 ) -> Result<HttpResponse, super::HandlerError> {
     let conn = ctxt.db_pool.get()?;
     let user = AdminOnly::from_session(&conn, &session)?;
@@ -218,12 +230,24 @@ pub async fn edit(
         .body(ctxt.render_template("snippet_form.html.tera", &context)))
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+pub struct UpdateSnippetContext {
+    hidden: bool,
+    title: String,
+    icon: Option<String>,
+    shared_by: String,
+    shared_on: String,
+    summary: String,
+    description: String,
+    href: String,
+}
+
 // PATCH/PUT /snippets/{taxonomy}/{snippet_id} update a specific snippet
 pub async fn update(
     ctxt: web::Data<ApplicationContext>,
     session: Session,
     web::Path((taxonomy, snippet_id)): web::Path<(String, i32)>,
-    form: web::Form<SnippetContext>,
+    form: web::Form<UpdateSnippetContext>,
 ) -> Result<HttpResponse, super::HandlerError> {
     let conn = ctxt.db_pool.get()?;
     let user = AdminOnly::from_session(&conn, &session)?;

@@ -1,7 +1,7 @@
 use crate::application_context::ApplicationContext;
 use clap::Clap;
 
-/// Grants a permission to a user
+/// Manages snippets.
 #[derive(Debug, Clap)]
 pub enum Snippet {
     Delete(Delete),
