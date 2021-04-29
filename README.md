@@ -189,6 +189,7 @@ From here, the service can be served behind a reverse proxy. I use nginx.
 server {
   server_name         www.idevgames.com;
   access_log          off;
+  add_header          Permissions-Policy interest-cohort=() always;
   location / {
     proxy_pass http://127.0.0.1:4000;
   }
