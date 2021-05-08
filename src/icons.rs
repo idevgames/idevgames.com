@@ -16,6 +16,7 @@ impl Icon {
             Icon::new("gamasutra.ico", "Gamasutra"),
             Icon::new("gdc.svg", "GDC"),
             Icon::new("github.png", "Github"),
+            Icon::new("godot.png", "Godot"),
             Icon::new("safari.png", "Safari"),
             Icon::new("swiftlang.svg", "Swift"),
             Icon::new("youtube.svg", "Youtube"),
