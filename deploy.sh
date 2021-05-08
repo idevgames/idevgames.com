@@ -17,7 +17,7 @@ ssh ${SERVICE_SU_USER}@${SERVICE_HOST} sudo apt-get install libssl1.1 libsqlite3
 docker run --rm --name idevgamesc \
   -v $(pwd):/src \
   -w /src \
-  rust:1.49 \
+  rust:1.52 \
   cargo build --release
 
 # todo: it would be nice to do brunch in docker so deployment doesn't depend on

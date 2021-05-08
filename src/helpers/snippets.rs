@@ -63,10 +63,7 @@ impl SnippetList {
             page_size.into(),
         )?;
         let snippet_count = Snippet::count(conn, visible_only, taxonomy)?;
-        let total_pages = std::cmp::max(
-         (snippet_count as f32 / page_size as f32).ceil() as i64,
-         1
-        );
+        let total_pages = std::cmp::max((snippet_count as f32 / page_size as f32).ceil() as i64, 1);
 
         Ok(SnippetList {
             taxonomy: taxonomy.to_owned(),

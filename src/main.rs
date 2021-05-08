@@ -61,10 +61,10 @@ pub fn env_parse<T: FromStr>(var: &str) -> T {
     let s = env_str(var);
     match s.parse() {
         Ok(a) => a,
-        _ => panic!(format!(
+        _ => panic!(
             "String {} was unparsable to some FromtStr type {}",
             s,
             type_name::<T>()
-        )),
+        ),
     }
 }

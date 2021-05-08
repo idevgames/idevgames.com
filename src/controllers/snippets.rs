@@ -318,32 +318,32 @@ pub async fn delete(
 
 // GET /snippets/{taxonomy}/{snippet_id} display a specific snippet
 pub async fn show(
-  ctxt: web::Data<ApplicationContext>,
-  session: Session,
-  web::Path((taxonomy, snippet_id)): web::Path<(String, i32)>,
+    ctxt: web::Data<ApplicationContext>,
+    session: Session,
+    web::Path((taxonomy, snippet_id)): web::Path<(String, i32)>,
 ) -> Result<HttpResponse, super::HandlerError> {
-  let conn = ctxt.db_pool.get()?;
-  let user = UserOptional::from_session(&conn, &session)?;
-  let _ = taxonomy; //Useless for this context but included to keep the API consistent.
+    let conn = ctxt.db_pool.get()?;
+    let user = UserOptional::from_session(&conn, &session)?;
+    let _ = taxonomy; //Useless for this context but included to keep the API consistent.
 
-  #[derive(Debug, Serialize)]
-  struct Context {
-    auth: UserOptionalContext,
-    snippet: SnippetContext,
-    is_admin: bool,
-  }
+    #[derive(Debug, Serialize)]
+    struct Context {
+        auth: UserOptionalContext,
+        snippet: SnippetContext,
+        is_admin: bool,
+    }
 
-  let snippet = Snippet::find_by_id(&conn, snippet_id)?;
+    let snippet = Snippet::find_by_id(&conn, snippet_id)?;
 
-  let context = Context {
-    auth: user.to_context(),
-    snippet: SnippetContext::from(&snippet),
-    is_admin: user.is_admin(),
-  };
+    let context = Context {
+        auth: user.to_context(),
+        snippet: SnippetContext::from(&snippet),
+        is_admin: user.is_admin(),
+    };
 
-  Ok(HttpResponse::Ok()
-    .set(ContentType::html())
-    .body(ctxt.render_template("snippet.html.tera", &context)))
+    Ok(HttpResponse::Ok()
+        .set(ContentType::html())
+        .body(ctxt.render_template("snippet.html.tera", &context)))
 }
 
 fn parse_date(date: &str) -> Result<NaiveDateTime, DTParseError> {

@@ -26,7 +26,10 @@ impl Serve {
                 .wrap(CookieSession::signed(&secret.as_bytes()).secure(false))
                 .app_data(application_context.clone())
                 .route("/", web::get().to(crate::controllers::homepage::homepage))
-                .route("/snippets/{taxonomy}", web::get().to(crate::controllers::snippets::index))
+                .route(
+                    "/snippets/{taxonomy}",
+                    web::get().to(crate::controllers::snippets::index),
+                )
                 .route(
                     "/control-plane",
                     web::get().to(crate::controllers::plane::show),
