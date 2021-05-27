@@ -52,15 +52,6 @@ header {
   }
 }
 
-cmdr {
-  text-align: center;
-  display: block;
-  
-  div {
-    display: inline-block;
-  }
-}
-
 footer {
   @include make-container();
   @extend .fs-6;

@@ -42,38 +42,24 @@
   <div class="col-md">
     <h4>About</h4>
     <p>
-      iDevGames is and has been <i>the</i> place for Mac game programmers
-      to share ideas, knowledge, code, graphics, audio, and a helping hand
-      to each other since it was founded by Carlos Camacho 1998. In
-      addition to providing a home for a large community of developers,
-      iDevGames also periodically runs contests to encourage new game
-      development. iDevGames runs the largest Mac game programming
-      contest, uDevGames, which to-date has awarded over $100,000 in
-      prizes.
-    <p>
-      Through contests and community support, iDevGames has been the
-      catalyst for fostering the careers of many game developers and
-      creation of a multitude of new games, and has the goal of continuing
-      to do so.
+      iDevGames is a community of game developers where we share ideas,
+      knowledge, code, graphics, audio, and a helping hand to each other
+      since it was founded by Carlos Camacho 1998. Additionally we periodically
+      run or participate in game jams and contests to encourage new game
+      development and improve our own skills.
     </p>
   </div>
   <div class="col-md">
     <h4>Community</h4>
     <p>
-      You can have a chat with the iDevGames community either on
+      You can have a chat with the iDevGames community on our community
       <a href="https://discord.gg/r6fxVBH" title="Join our Discord server"
           style="text-decoration: none;">
         <img src="/static/discord.svg" height="24px"/>
-      </a>
-      or by connecting via an IRC client with an
-      <a href="https://freenode.net/kb/answer/registration">authed alias</a>
-      to <code>irc://freenode.net:7000/#idevgames</code>.
+      </a>. Stop by, say hi, tell us what you're working on. We're big
+      on encouragement, whether your developing apps, websites, games,
+      making art, or music.
     </p>
-    <cmdr>
-      <div>
-        <img src="/static/cmdr.png" height="175px"/>
-      </div>
-    </cmdr>
   </div>
 </div>
 
