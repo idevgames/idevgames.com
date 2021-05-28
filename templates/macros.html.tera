@@ -3,7 +3,7 @@
   {% if snippet.icon %}
     <img src="/static/icons/{{ snippet.icon }}" class="icon"/>
   {% endif %}
-  <span class="font-weight-light">
+  <span class="font-weight-heavy">
     {{ snippet.shared_by }} shared on {{ snippet.shared_on }}:
   </span>
   <a href="{{ snippet.href }}">{{ snippet.title }}</a>

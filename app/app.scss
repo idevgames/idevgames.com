@@ -46,9 +46,17 @@ header {
 .snippetlist {
   @extend .list-unstyled;
 
-  li img {
-    max-height: 24px;
-    max-width: 24px;
+  li {
+    padding: 0.25em 0;
+    
+    .font-weight-heavy {
+      font-weight: 600;
+    }
+
+    img { 
+      max-height: 24px;
+      max-width: 24px;
+    }
   }
 }
 
