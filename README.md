@@ -17,7 +17,7 @@ NodeJS, and a Github OAuth application.
 First, clone the site down to your own machine.
 
 ```bash
-git clone git@github.com:idevgames/idevgames.com
+git clone git@github.com:idevgames/idevgames.com && cd idevgames.com
 ```
 
 ### NodeJS
@@ -27,13 +27,9 @@ preferences. Then install Brunch, a JS tool that compiles JS/SASS to things that
 are static and can be used by the browser.
 
 ```bash
-npm i -g brunch # this may require sudo
-```
-
-Now install Brunch's dependencies.
-
-```bash
+pushd react-project
 npm i
+popd
 ```
 
 That's the NodeJS part done.
@@ -190,7 +186,8 @@ server {
   server_name         www.idevgames.com;
   access_log          off;
   add_header          Permissions-Policy interest-cohort=() always;
-  location / {
+  root                /home/idevgames/static;
+  location /api {
     proxy_pass http://127.0.0.1:4000;
   }
 }
