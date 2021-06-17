@@ -1,4 +1,5 @@
 pub mod admin_only;
+pub mod maybe_user;
 pub mod snippets;
 
 use crate::application_context::ApplicationContext;

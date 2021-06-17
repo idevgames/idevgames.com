@@ -1,8 +1,6 @@
-use clap::Clap;
-use rocket::{
-    config::Config as RocketConfig, figment::Figment, routes,
-};
 use crate::application_context::ApplicationContext;
+use clap::Clap;
+use rocket::{config::Config as RocketConfig, figment::Figment, routes};
 
 /// Start the iDevGames website
 #[derive(Clap, Debug)]
@@ -24,6 +22,8 @@ impl Serve {
             .mount(
                 "/api",
                 routes![
+                    // GET      /api/session
+                    crate::controllers::auth::get_session,
                     // GET      /api/session/github_authorization_url
                     crate::controllers::auth::github_authorization_url,
                     // GET      /api/session/github_callback

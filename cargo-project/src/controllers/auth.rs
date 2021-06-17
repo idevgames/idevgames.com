@@ -3,15 +3,54 @@ use crate::{
     application_context::ApplicationContext,
     db::DbConn,
     github_client::GithubClient,
+    helpers::maybe_user::MaybeUser,
     models::{GithubUserRecord, User},
 };
-use rocket::{State, delete, get, http::{Cookie, CookieJar}, response::content::Json};
+use rocket::{
+    delete, get,
+    http::{Cookie, CookieJar},
+    response::content::Json,
+    State,
+};
 use serde::Serialize;
+
+/// Describes the currently logged in user, if there is a user logged
+/// in.
+#[get("/session")]
+pub async fn get_session(user: MaybeUser) -> Json<GetSessionOutput> {
+    if let Some(u) = user.user {
+        GetSessionOutput {
+            user: Some(SessionIdentity {
+                id: u.0.id,
+                github_user_id: u.1.id,
+                preferred_name: u.1.preferred_name,
+                permissions: user.permissions,
+            }),
+        }
+    } else {
+        GetSessionOutput { user: None }
+    }
+}
+
+#[derive(Debug, Serialize)]
+pub struct GetSessionOutput {
+    user: Option<SessionIdentity>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct SessionIdentity {
+    id: u32,
+    github_user_id: u32,
+    preferred_name: String,
+    permissions: Vec<String>,
+}
 
 /// The URL that a client should redirect the user to in order to start
 /// the login process.
 #[get("/session/github_authorization_url")]
-pub async fn github_authorization_url(ctxt: State<ApplicationContext>) -> Json<GithubAuthorizationUrlOutput> {
+pub async fn github_authorization_url(
+    ctxt: State<ApplicationContext>,
+) -> Json<GithubAuthorizationUrlOutput> {
     let url = ctxt.github_client.authorization_url();
     Json(GithubAuthorizationUrlOutput { url: url.into() })
 }

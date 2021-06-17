@@ -1,4 +1,9 @@
 import {
+  GetSessionInput, GetSessionOutput, GetGithubAuthorizationUrlInput,
+  GetGithubAuthorizationUrlOutput, GetGithubCallbackInput,
+  GetGithubCallbackOutput, DestroySessionInput, DestroySessionOutput
+} from "./auth";
+import {
   CreateSnippetInput, CreateSnippetOutput, ListSnippetInput, ListSnippetOutput,
   Snippet
 } from "./snippets";
@@ -7,6 +12,10 @@ import {
  * Describes how to interact with the iDevGames server.
  */
 export interface Client {
+  getSession(input: GetSessionInput): GetSessionOutput;
+  getGithubAuthorizationUrl(input: GetGithubAuthorizationUrlInput): Promise<GetGithubAuthorizationUrlOutput>;
+  getGithubCallback(input: GetGithubCallbackInput): GetGithubCallbackOutput;
+  destroySession(input: DestroySessionInput): DestroySessionOutput;
   /**
    * Creates a new snippet.
    * @param input describes the snippet to create.
@@ -29,10 +38,16 @@ export class HttpClient implements Client {
    */
   constructor() {
     if (process.env.NODE_ENV === 'production') {
-      this.baseUrl = 'https://www.idevgames.com';
+      this.baseUrl = 'https://www.idevgames.com/api';
     } else {
-      this.baseUrl = 'http://localhost:4000';
+      this.baseUrl = 'http://localhost:4000/api';
     }
+  }
+  getGithubAuthorizationUrl(input: GetGithubAuthorizationUrlInput): Promise<GetGithubAuthorizationUrlOutput> {
+    return fetch(
+      this.baseUrl + '/session/github_authorization_url',
+      this.defaultFetchArgs(input)
+    ).then(response => response.json());
   }
   createSnippet(input: CreateSnippetInput): CreateSnippetOutput {
     // TODO: do the hard thing
@@ -56,7 +71,7 @@ export class HttpClient implements Client {
   }
   listSnippets(input: ListSnippetInput): ListSnippetOutput {
     // TODO: do the hard thing
-    const referenceSnippets: {[index: string]:Snippet[]} = {
+    const referenceSnippets: { [index: string]: Snippet[] } = {
       "links": [
         {
           id: 1,
@@ -97,5 +112,15 @@ export class HttpClient implements Client {
       nextPage: 0,
       totalPages: 1,
     };
+  }
+  defaultFetchArgs(body: any): RequestInit {
+    return {
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    }
   }
 }

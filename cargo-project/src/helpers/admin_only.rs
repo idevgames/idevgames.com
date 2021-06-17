@@ -1,11 +1,10 @@
-use std::num::ParseIntError;
-
-use crate::{models::{GithubUserRecord, ModelError, User}};
-use rocket::{http::Status, request::FromRequest};
-use rocket::request::Request;
+use super::{auth_from_request, AuthFromRequestError};
+use crate::models::{GithubUserRecord, ModelError, User};
 use rocket::request::Outcome;
+use rocket::request::Request;
+use rocket::{http::Status, request::FromRequest};
+use std::num::ParseIntError;
 use thiserror::Error;
-use super::{AuthFromRequestError, auth_from_request};
 
 pub struct AdminOnly {
     user: (User, GithubUserRecord),
@@ -27,28 +26,20 @@ impl<'a, 'r> FromRequest<'a, 'r> for AdminOnly {
                     // existence of an object. More granular permission
                     // on the resource level are the ones concerned with
                     // returning Not Found rather than Forbidden.
-                    Outcome::Failure((
-                        Status::Forbidden,
-                        AdminOnlyError::NotAdmin,
-                    ))
+                    Outcome::Failure((Status::Forbidden, AdminOnlyError::NotAdmin))
                 }
             }
-            Ok(None) => Outcome::Failure((
-                Status::Unauthorized,
-                AdminOnlyError::NotLoggedIn,
-            )),
+            Ok(None) => Outcome::Failure((Status::Unauthorized, AdminOnlyError::NotLoggedIn)),
             Err(e) => match e {
-                AuthFromRequestError::DbPoolError(e) => Outcome::Failure((
-                    Status::InternalServerError,
-                    AdminOnlyError::DbPoolError(e),
-                )),
-                AuthFromRequestError::UserIdDecodeError(e) => Outcome::Failure(
-                    (Status::BadRequest, AdminOnlyError::UserIdDecodeError(e)),
-                ),
-                AuthFromRequestError::DbQueryError(e) => Outcome::Failure((
-                    Status::BadRequest,
-                    AdminOnlyError::DbQueryError(e),
-                )),
+                AuthFromRequestError::DbPoolError(e) => {
+                    Outcome::Failure((Status::InternalServerError, AdminOnlyError::DbPoolError(e)))
+                }
+                AuthFromRequestError::UserIdDecodeError(e) => {
+                    Outcome::Failure((Status::BadRequest, AdminOnlyError::UserIdDecodeError(e)))
+                }
+                AuthFromRequestError::DbQueryError(e) => {
+                    Outcome::Failure((Status::BadRequest, AdminOnlyError::DbQueryError(e)))
+                }
             },
         }
     }
