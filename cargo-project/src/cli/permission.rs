@@ -1,10 +1,6 @@
 use std::process::exit;
 
-use crate::{
-    application_context::ApplicationContext,
-    models::github_user_records::GithubUserRecord,
-    models::{permissions::Permission as PermissionModel, users::User, ModelError},
-};
+use crate::{application_context::ApplicationContext, db::DbConn, models::github_user_records::GithubUserRecord, models::{permissions::Permission as PermissionModel, users::User, ModelError}};
 use clap::Clap;
 use diesel::Connection;
 
@@ -22,17 +18,12 @@ struct PermissionGrant {
 
 impl PermissionGrant {
     async fn grant(&self, ctxt: &ApplicationContext) {
-        let conn = &ctxt
-            .db_pool
-            .get()
-            .expect("Could not get a connection from the pool");
 
-        let (_, user) = match GithubUserRecord::find_by_login(&conn, &self.user)
-            .expect("Could not query the database")
-        {
+        let github_user_record = GithubUserRecord::find_by_login(&get_connection(ctxt), &self.user).expect("Could not query the database");
+        let (_, user) = match github_user_record {
             Some(gu) => {
                 let u = gu
-                    .get_user(&conn)
+                    .get_user(&get_connection(ctxt))
                     .expect("Could not retrieve user from database");
                 (gu, u)
             }
@@ -42,7 +33,7 @@ impl PermissionGrant {
                     .get_user_detail_by_login(&self.user)
                     .await
                     .expect("Unable to query Github API");
-
+                let conn = get_connection(&ctxt.clone());
                 conn.transaction::<(GithubUserRecord, User), ModelError, _>(|| {
                     let u = User::create(&conn)?;
                     let gu = GithubUserRecord::find_and_update(
@@ -59,7 +50,7 @@ impl PermissionGrant {
             }
         };
 
-        PermissionModel::grant_permission(&conn, user.id, &self.permission)
+        PermissionModel::grant_permission(&get_connection(ctxt), user.id, &self.permission)
             .expect("Unable to grant permission");
 
         println!("Permission granted!")
@@ -82,6 +73,7 @@ impl PermissionRevoke {
     fn revoke(&self, ctxt: &ApplicationContext) {
         let conn = &ctxt
             .db_pool
+            .read()
             .get()
             .expect("Couldn't get a connection from the pool");
         let github_user = {
@@ -126,6 +118,7 @@ impl PermissionShow {
     fn show(&self, ctxt: &ApplicationContext) {
         let conn = &ctxt
             .db_pool
+            .read()
             .get()
             .expect("Couldn't get a connection to the database out of the pool");
 
@@ -190,4 +183,8 @@ impl Permission {
             }
         }
     }
+}
+
+fn get_connection(ctxt: &ApplicationContext) -> DbConn {
+    ctxt.db_pool.read().get().expect("Could not get a connection from the pool")
 }

@@ -53,12 +53,12 @@ impl GithubClient {
     /// Exchange our access code for an access token.
     pub async fn get_access_token(
         &self,
-        code: &String,
+        code: &str,
     ) -> Result<GetAccessTokenResponse, GithubClientError> {
         let params = [
             ("client_id", self.client_id.as_str()),
             ("client_secret", self.client_secret.as_str()),
-            ("code", code.as_str()),
+            ("code", code),
         ];
 
         let r = self

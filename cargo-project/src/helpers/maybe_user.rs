@@ -1,11 +1,10 @@
-use rocket::{http::Status, outcome::Outcome, request::FromRequest, Request};
-
-use crate::{
-    helpers::auth_from_request,
-    models::{GithubUserRecord, User},
-};
-
 use super::AuthFromRequestError;
+use crate::{helpers::auth_from_request, models::{GithubUserRecord, User}};
+use rocket::{
+    http::Status,
+    request::{FromRequest, Outcome},
+    Request,
+};
 
 pub struct MaybeUser {
     pub user: Option<(User, GithubUserRecord)>,
@@ -13,13 +12,13 @@ pub struct MaybeUser {
 }
 
 #[rocket::async_trait]
-impl<'a, 'r> FromRequest<'a, 'r> for MaybeUser {
+impl<'r> FromRequest<'r> for MaybeUser {
     type Error = AuthFromRequestError;
 
-    async fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
+    async fn from_request(req: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         match auth_from_request(req) {
-            Ok(Some((user, permissioms))) => Outcome::Success(MaybeUser {
-                user: Some(user),
+            Ok(Some((user, github_user, permissioms))) => Outcome::Success(MaybeUser {
+                user: Some((user, github_user)),
                 permissions: permissioms,
             }),
             Ok(None) => Outcome::Success(MaybeUser {
@@ -27,13 +26,13 @@ impl<'a, 'r> FromRequest<'a, 'r> for MaybeUser {
                 permissions: vec![],
             }),
             Err(e) => match e {
-                AuthFromRequestError::DbPoolError(e) => {
+                AuthFromRequestError::DbPoolError(_) => {
                     Outcome::Failure((Status::InternalServerError, e))
                 }
-                AuthFromRequestError::UserIdDecodeError(e) => {
+                AuthFromRequestError::UserIdDecodeError(_) => {
                     Outcome::Failure((Status::BadRequest, e))
                 }
-                AuthFromRequestError::DbQueryError(e) => Outcome::Failure((Status::BadRequest, e)),
+                AuthFromRequestError::DbQueryError(_) => Outcome::Failure((Status::BadRequest, e)),
             },
         }
     }

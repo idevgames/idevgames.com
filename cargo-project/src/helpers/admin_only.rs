@@ -12,14 +12,14 @@ pub struct AdminOnly {
 }
 
 #[rocket::async_trait]
-impl<'a, 'r> FromRequest<'a, 'r> for AdminOnly {
-    type Error = AuthFromRequestError;
+impl<'r> FromRequest<'r> for AdminOnly {
+    type Error = AdminOnlyError;
 
-    async fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
+    async fn from_request(req: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         match auth_from_request(req) {
-            Ok(Some((user, permissions))) => {
+            Ok(Some((user, github_user, permissions))) => {
                 if permissions.contains(&"admin".to_string()) {
-                    Outcome::Success(AdminOnly { user, permissions })
+                    Outcome::Success(AdminOnly { user: (user, github_user), permissions })
                 } else {
                     // because AdminOnly works on an API call and not on
                     // a resource there is no real danger of leaking the

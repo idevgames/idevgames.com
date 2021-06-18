@@ -1,0 +1,6 @@
+{
+  "name": "idevgames-com",
+  "workspaces": [
+    "react-project"
+  ]
+}

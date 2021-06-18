@@ -127,7 +127,9 @@ impl Snippet {
         page: i64,
         page_size: i64,
     ) -> Result<Vec<Self>, ModelError> {
-        use crate::schema::snippets::dsl::{hidden, shared_on, snippets, taxonomy};
+        use crate::schema::snippets::dsl::{
+            hidden, shared_on, snippets, taxonomy
+        };
         use diesel::prelude::*;
 
         let q = snippets
@@ -147,8 +149,8 @@ impl Snippet {
 
     pub fn update(&self, conn: &DbConn) -> Result<(), ModelError> {
         use crate::schema::snippets::dsl::{
-            creator_id, description, hidden, href, icon, shared_by, shared_on, snippets, summary,
-            taxonomy, title, updated_at,
+            creator_id, description, hidden, href, icon, shared_by, shared_on, 
+            snippets, summary, taxonomy, title, updated_at,
         };
         use diesel::prelude::*;
 
@@ -189,7 +191,7 @@ impl Default for Snippet {
             taxonomy: "".to_owned(),
             hidden: true,
             title: "".to_owned(),
-            icon: crate::icons::Icon::default(),
+            icon: "".to_owned(),
             shared_by: "".to_owned(),
             shared_on: Utc::now().naive_utc(),
             summary: "".to_owned(),

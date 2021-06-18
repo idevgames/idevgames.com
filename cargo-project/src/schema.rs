@@ -23,7 +23,7 @@ table! {
         taxonomy -> Text,
         hidden -> Bool,
         title -> Text,
-        icon -> Nullable<Text>,
+        icon -> Text,
         shared_by -> Text,
         shared_on -> Timestamp,
         summary -> Text,
@@ -41,4 +41,9 @@ table! {
     }
 }
 
-allow_tables_to_appear_in_same_query!(github_user_records, permissions, snippets, users,);
+allow_tables_to_appear_in_same_query!(
+    github_user_records,
+    permissions,
+    snippets,
+    users,
+);

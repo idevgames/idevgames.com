@@ -28,7 +28,7 @@ pub struct SetTaxonomy {
 
 impl SetTaxonomy {
     pub fn do_the_thing(&self, ctxt: &ApplicationContext) {
-        let conn = ctxt.db_pool.get().unwrap();
+        let conn = ctxt.db_pool.read().get().unwrap();
         let mut snippet = crate::models::snippets::Snippet::find_by_id(&conn, self.id).unwrap();
         snippet.taxonomy = self.taxonomy.clone();
         snippet.update(&conn).unwrap();
@@ -43,7 +43,7 @@ pub struct Delete {
 
 impl Delete {
     pub fn make_it_go_away(&self, ctxt: &ApplicationContext) {
-        let conn = ctxt.db_pool.get().unwrap();
+        let conn = ctxt.db_pool.read().get().unwrap();
         let snippet = crate::models::snippets::Snippet::find_by_id(&conn, self.id).unwrap();
         snippet.delete(&conn).unwrap();
         println!("Snippet deleted.");

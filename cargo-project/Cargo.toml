@@ -1,6 +1,6 @@
 [package]
 name = "idevgames"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Christopher R. Miller <xpm@mysteriouspants.com>"]
 edition = "2018"
 publish = false # let's not foist this onto crates.io as a crate
@@ -13,6 +13,7 @@ diesel_migrations = "1.4"
 dotenv = "0.15"
 env_logger = "0.8"
 log = "0.4"
+parking_lot = "0.11"
 pulldown-cmark = "0.8"
 reqwest = { version = "0.11", features = [ "json" ] }
 rocket = { version = "0.5.0-rc.1", features = [ "secrets", "json" ] }

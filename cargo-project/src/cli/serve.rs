@@ -18,7 +18,7 @@ impl Serve {
             .merge(("secret_key", secret));
 
         let _ = rocket::custom(config)
-            .manage(ctxt)
+            .manage(ctxt.clone())
             .mount(
                 "/api",
                 routes![

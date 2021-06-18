@@ -11,7 +11,7 @@ pub struct SnippetContext {
     id: i32,
     taxonomy: String,
     title: String,
-    icon: Option<String>,
+    icon: String,
     shared_by: String,
     shared_on: String,
     summary: String,
