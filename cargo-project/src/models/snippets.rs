@@ -1,9 +1,9 @@
 use crate::db::DbConn;
 use chrono::{NaiveDateTime, Utc};
-
 use super::{last_insert_rowid, ModelError};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Queryable)]
+#[derive(Debug, Deserialize, Queryable, Serialize)]
 pub struct Snippet {
     pub id: i32,
     pub creator_id: i32,

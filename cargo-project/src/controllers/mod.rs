@@ -1,5 +1,5 @@
 pub mod auth;
-// pub mod snippets;
+pub mod snippets;
 
 use crate::{github_client::GithubClientError, helpers::AuthFromRequestError};
 use rocket::{Request, Response, http::{ContentType, Status}, response::{self, Responder}, serde::json::serde_json::json};

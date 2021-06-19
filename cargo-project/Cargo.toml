@@ -6,7 +6,7 @@ edition = "2018"
 publish = false # let's not foist this onto crates.io as a crate
 
 [dependencies]
-chrono = "0.4"
+chrono = { version = "0.4", features = [ "serde" ] }
 clap = "3.0.0-beta.2"
 diesel = { version = "1.4", features = [ "chrono", "sqlite", "r2d2" ] }
 diesel_migrations = "1.4"

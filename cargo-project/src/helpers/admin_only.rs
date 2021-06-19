@@ -7,8 +7,8 @@ use std::num::ParseIntError;
 use thiserror::Error;
 
 pub struct AdminOnly {
-    user: (User, GithubUserRecord),
-    permissions: Vec<String>,
+    pub user: (User, GithubUserRecord),
+    pub permissions: Vec<String>,
 }
 
 #[rocket::async_trait]

@@ -26,10 +26,20 @@ impl Serve {
                     crate::controllers::auth::get_session,
                     // GET      /api/session/github_authorization_url
                     crate::controllers::auth::github_authorization_url,
-                    // GET      /api/session/github_callback
+                    // GET      /api/session/github_callback?<code>
                     crate::controllers::auth::github_callback,
                     // DELETE   /api/session
                     crate::controllers::auth::logout,
+                    // GET      /api/snippets?<taxonomy>&<page>&<show_hidden>
+                    crate::controllers::snippets::get_snippets,
+                    // GET      /api/snippets/<snippet_id>
+                    crate::controllers::snippets::get_snippet,
+                    // POST     /api/snippets
+                    crate::controllers::snippets::create_snippet,
+                    // PUT      /api/snippets/<snippet_id>
+                    crate::controllers::snippets::update_snippet,
+                    // DELETE   /api/snippets/<snippet_id>
+                    crate::controllers::snippets::delete_snippet,
                 ],
             )
             .launch()

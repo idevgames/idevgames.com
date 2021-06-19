@@ -1,362 +1,200 @@
-use actix_session::Session;
-use actix_web::{http::header::ContentType, web, HttpResponse};
-use chrono::{NaiveDateTime, ParseError as DTParseError};
-use serde::{Deserialize, Serialize};
-
 use crate::{
     application_context::ApplicationContext,
-    helpers::{
-        admin_only::{AdminOnly, AdminOnlyContext},
-        snippets::SnippetList,
-        user_optional::{UserOptional, UserOptionalContext},
-    },
-    icons::Icon,
-    models::Snippet,
+    db::DbConn,
+    helpers::{admin_only::AdminOnly, maybe_user::MaybeUser},
+    models::{ModelError, Snippet},
 };
+use chrono::NaiveDateTime;
+use rocket::{State, delete, get, post, put, serde::json::Json};
+use serde::{Deserialize, Serialize};
 
-use super::HandlerError;
+/* #region GetSnippets */
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct SnippetContext {
-    id: i32,
-    taxonomy: String,
-    hidden: bool,
-    title: String,
-    icon: Option<String>,
-    shared_by: String,
-    shared_on: String,
-    summary: String,
-    description: String,
-    href: String,
-}
-
-impl From<&Snippet> for SnippetContext {
-    fn from(snippet: &Snippet) -> Self {
-        SnippetContext {
-            id: snippet.id,
-            taxonomy: snippet.taxonomy.clone(),
-            hidden: snippet.hidden,
-            title: snippet.title.clone(),
-            icon: snippet.icon.clone(),
-            shared_by: snippet.shared_by.clone(),
-            shared_on: snippet.shared_on.format("%Y-%m-%d").to_string(),
-            summary: snippet.summary.clone(),
-            description: snippet.description.clone(),
-            href: snippet.href.clone(),
-        }
-    }
-}
-
-// maps with https://getbootstrap.com/docs/5.0/components/alerts/
-#[derive(Debug, Serialize)]
-enum FlashSeverity {
-    #[allow(dead_code)]
-    Primary,
-    #[allow(dead_code)]
-    Secondary,
-    Success,
-    #[allow(dead_code)]
-    Danger,
-    #[allow(dead_code)]
-    Warning,
-    #[allow(dead_code)]
-    Info,
-    #[allow(dead_code)]
-    Light,
-    #[allow(dead_code)]
-    Dark,
-}
-
-#[derive(Debug, Serialize)]
-struct Flash {
-    severity: FlashSeverity,
-    message: String,
-}
-
-#[derive(Debug, Serialize)]
-struct FormContext {
-    auth: AdminOnlyContext,
-    create_mode: bool,
-    action_url: String,
-    taxonomy: String,
-    snippet: SnippetContext,
-    icons: Vec<Icon>,
-    flash: Option<Flash>,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct IndexQueryParams {
-    page: Option<i32>,
-    show_hidden: Option<bool>,
-}
-
-// GET /snippets/{taxonomy}?page={page_number}&show_hidden={show_hidden}
-pub async fn index(
-    ctxt: web::Data<ApplicationContext>,
-    session: Session,
-    web::Path(taxonomy): web::Path<String>,
-    query: web::Query<IndexQueryParams>,
-) -> Result<HttpResponse, super::HandlerError> {
-    let conn = ctxt.db_pool.get()?;
-    let user = UserOptional::from_session(&conn, &session)?;
-    let show_hidden = user.is_admin() && query.show_hidden.unwrap_or(false);
-    let page = query.page.unwrap_or(0);
+#[get("/snippets?<taxonomy>&<page>&<show_hidden>")]
+pub async fn get_snippets(
+    user: MaybeUser,
+    ctxt: &State<ApplicationContext>,
+    taxonomy: &str,
+    page: i32,
+    show_hidden: bool,
+) -> Result<Json<GetSnippetsOutput>, super::HandlerError> {
+    let conn = ctxt.db_pool.read().get()?;
+    let show_hidden = user.is_admin() && show_hidden;
+    let page = page;
     let page_size = 5;
 
-    let snippetlist = SnippetList::new(
-        &conn,
-        page,
-        page_size,
-        &taxonomy,
-        user.is_admin(),
-        true,
-        !show_hidden,
-    )?;
+    let snippets = GetSnippetsOutput::new(&conn, page, page_size, &taxonomy, !show_hidden)?;
 
-    #[derive(Debug, Serialize)]
-    struct Context {
-        auth: UserOptionalContext,
-        snippetlist: SnippetList,
+    Ok(Json(snippets))
+}
+
+#[derive(Debug, Serialize)]
+pub struct GetSnippetsOutput {
+    snippets: Vec<Snippet>,
+    current_page: i32,
+    total_pages: i64,
+}
+
+impl GetSnippetsOutput {
+    pub fn new(
+        conn: &DbConn,
+        page: i32,
+        page_size: i32,
+        taxonomy: &str,
+        visible_only: bool,
+    ) -> Result<Self, ModelError> {
+        let snippets = Snippet::find_all_by_taxonomy(
+            conn,
+            visible_only,
+            taxonomy,
+            page.into(),
+            page_size.into(),
+        )?;
+        let snippet_count = Snippet::count(conn, visible_only, taxonomy)?;
+        let total_pages = std::cmp::max((snippet_count as f32 / page_size as f32).ceil() as i64, 1);
+
+        Ok(Self {
+            snippets: snippets,
+            current_page: page,
+            total_pages,
+        })
     }
-
-    let context = Context {
-        auth: user.to_context(),
-        snippetlist: snippetlist,
-    };
-
-    Ok(HttpResponse::Ok()
-        .set(ContentType::html())
-        .body(ctxt.render_template("snippetlist.html.tera", &context)))
 }
 
-// GET /snippets/{taxonomy}/new, renders the form
-pub async fn new(
-    ctxt: web::Data<ApplicationContext>,
-    session: Session,
-    web::Path(taxonomy): web::Path<String>,
-) -> Result<HttpResponse, super::HandlerError> {
-    let conn = ctxt.db_pool.get()?;
-    let user = AdminOnly::from_session(&conn, &session)?;
+/* #endregion */
+/* #region GetSnippet */
 
-    let context = FormContext {
-        auth: user.to_context(),
-        create_mode: true,
-        action_url: format!("/snippets/{}", taxonomy),
-        taxonomy: taxonomy,
-        snippet: SnippetContext::from(&Snippet::default()),
-        icons: Icon::get_all(),
-        flash: None,
-    };
+#[get("/snippets/<snippet_id>")]
+pub async fn get_snippet(
+    user: MaybeUser,
+    ctxt: &State<ApplicationContext>,
+    snippet_id: i32,
+) -> Result<Json<GetSnippetOutput>, super::HandlerError> {
+    let conn = ctxt.db_pool.read().get()?;
+    let can_view_hidden = user.is_admin();
 
-    Ok(HttpResponse::Ok()
-        .set(ContentType::html())
-        .body(ctxt.render_template("snippet_form.html.tera", &context)))
+    let snippet = Snippet::find_by_id(&conn, snippet_id)?;
+
+    if snippet.hidden && !can_view_hidden {
+        Err(super::HandlerError::NotFound)
+    } else {
+        Ok(Json(GetSnippetOutput { snippet }))
+    }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct CreateSnippetContext {
-    hidden: bool,
-    title: String,
-    icon: Option<String>,
-    shared_by: String,
-    shared_on: String,
-    summary: String,
-    description: String,
-    href: String,
+#[derive(Debug, Serialize)]
+pub struct GetSnippetOutput {
+    snippet: Snippet,
 }
 
-// POST /snippets/{taxonomy} create a new snippet
-pub async fn create(
-    ctxt: web::Data<ApplicationContext>,
-    session: Session,
-    web::Path(taxonomy): web::Path<String>,
-    form: web::Form<CreateSnippetContext>,
-) -> Result<HttpResponse, super::HandlerError> {
-    let conn = ctxt.db_pool.get()?;
-    let user = AdminOnly::from_session(&conn, &session)?;
+/* #endregion */
+/* #region CreateSnippet */
 
-    // TODO: when the date doesn't parse show the create form again with an
-    //       error. the user base at the moment isn't really big enough to
-    //       bother with such niceties, really.
+#[post("/snippets", data = "<input>")]
+pub async fn create_snippet(
+    user: AdminOnly,
+    ctxt: &State<ApplicationContext>,
+    input: Json<CreateSnippetInput>,
+) -> Result<Json<CreateSnippetOutput>, super::HandlerError> {
+    let conn = ctxt.db_pool.read().get()?;
 
     let snippet = Snippet::create(
         &conn,
-        user.get_id(),
-        &taxonomy,
-        form.hidden,
-        form.icon.as_deref(),
-        &form.title,
-        &form.shared_by,
-        &parse_date(&form.shared_on)?,
-        &form.summary,
-        &form.description,
-        &form.href,
+        user.user.0.id,
+        &input.taxonomy,
+        input.hidden,
+        &input.icon,
+        &input.title,
+        &input.shared_by,
+        &input.shared_on,
+        &input.summary,
+        &input.description,
+        &input.href,
     )?;
 
-    Ok(HttpResponse::MovedPermanently()
-        .header(
-            "Location",
-            format!("/snippets/{}/{}/edit", taxonomy, snippet.id),
-        )
-        .finish())
+    Ok(Json(CreateSnippetOutput { snippet }))
 }
 
-// GET /snippets/{taxonomy}/{snippet_id}/edit form for editing an existing snippet
-pub async fn edit(
-    ctxt: web::Data<ApplicationContext>,
-    session: Session,
-    web::Path((taxonomy, snippet_id)): web::Path<(String, i32)>,
-) -> Result<HttpResponse, super::HandlerError> {
-    let conn = ctxt.db_pool.get()?;
-    let user = AdminOnly::from_session(&conn, &session)?;
-    let snippet = Snippet::find_by_id(&conn, snippet_id)?;
-
-    if snippet.taxonomy != taxonomy {
-        return Err(HandlerError::NotFound);
-    }
-
-    let context = FormContext {
-        auth: user.to_context(),
-        create_mode: false,
-        action_url: format!("/snippets/{}/{}", taxonomy, snippet.id),
-        taxonomy: taxonomy,
-        snippet: SnippetContext::from(&snippet),
-        icons: Icon::get_all(),
-        flash: None,
-    };
-
-    Ok(HttpResponse::Ok()
-        .set(ContentType::html())
-        .body(ctxt.render_template("snippet_form.html.tera", &context)))
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct UpdateSnippetContext {
+#[derive(Debug, Deserialize)]
+pub struct CreateSnippetInput {
+    taxonomy: String,
     hidden: bool,
     title: String,
-    icon: Option<String>,
+    icon: String,
     shared_by: String,
-    shared_on: String,
+    shared_on: NaiveDateTime,
     summary: String,
     description: String,
     href: String,
 }
 
-// PATCH/PUT /snippets/{taxonomy}/{snippet_id} update a specific snippet
-pub async fn update(
-    ctxt: web::Data<ApplicationContext>,
-    session: Session,
-    web::Path((taxonomy, snippet_id)): web::Path<(String, i32)>,
-    form: web::Form<UpdateSnippetContext>,
-) -> Result<HttpResponse, super::HandlerError> {
-    let conn = ctxt.db_pool.get()?;
-    let user = AdminOnly::from_session(&conn, &session)?;
+#[derive(Debug, Serialize)]
+pub struct CreateSnippetOutput {
+    snippet: Snippet,
+}
+
+/* #endregion */
+/* #region UpdateSnippet */
+
+#[put("/snippets/<snippet_id>", data = "<input>")]
+pub async fn update_snippet(
+    _user: AdminOnly,
+    ctxt: &State<ApplicationContext>,
+    snippet_id: i32,
+    input: Json<UpdateSnippetInput>,
+) -> Result<Json<UpdateSnippetOutput>, super::HandlerError> {
+    let conn = ctxt.db_pool.read().get()?;
     let mut snippet = Snippet::find_by_id(&conn, snippet_id)?;
 
-    if snippet.taxonomy != taxonomy {
-        return Err(HandlerError::NotFound);
-    }
-
-    snippet.hidden = form.hidden;
-    snippet.title = form.title.clone();
-    snippet.icon = form.icon.clone();
-    snippet.shared_by = form.shared_by.clone();
-    snippet.shared_on = parse_date(&form.shared_on)?;
-    snippet.summary = form.summary.clone();
-    snippet.description = form.description.clone();
-    snippet.href = form.href.clone();
+    snippet.hidden = input.hidden;
+    snippet.title = input.title.clone();
+    snippet.icon = input.icon.clone();
+    snippet.shared_by = input.shared_by.clone();
+    snippet.shared_on = input.shared_on.clone();
+    snippet.summary = input.summary.clone();
+    snippet.description = input.description.clone();
+    snippet.href = input.href.clone();
 
     snippet.update(&conn)?;
 
-    let context = FormContext {
-        auth: user.to_context(),
-        create_mode: false,
-        action_url: format!("/snippets/{}/{}", taxonomy, snippet.id),
-        taxonomy: taxonomy,
-        snippet: SnippetContext::from(&snippet),
-        icons: Icon::get_all(),
-        flash: Some(Flash {
-            severity: FlashSeverity::Success,
-            message: "Updated".to_owned(),
-        }),
-    };
-
-    Ok(HttpResponse::Ok()
-        .set(ContentType::html())
-        .body(ctxt.render_template("snippet_form.html.tera", &context)))
+    Ok(Json(UpdateSnippetOutput { }))
 }
 
-// DELETE /snippets/{taxonomy}/{snippet_id} delet this pls
-pub async fn delete(
-    ctxt: web::Data<ApplicationContext>,
-    session: Session,
-    web::Path((taxonomy, snippet_id)): web::Path<(String, i32)>,
-) -> Result<HttpResponse, super::HandlerError> {
-    let conn = ctxt.db_pool.get()?;
-    let user = AdminOnly::from_session(&conn, &session)?;
-    let snippet = Snippet::find_by_id(&conn, snippet_id)?;
+#[derive(Debug, Deserialize)]
+pub struct UpdateSnippetInput {
+    taxonomy: String,
+    hidden: bool,
+    title: String,
+    icon: String,
+    shared_by: String,
+    shared_on: NaiveDateTime,
+    summary: String,
+    description: String,
+    href: String,
+}
 
-    if snippet.taxonomy != taxonomy {
-        return Err(HandlerError::NotFound);
-    }
+#[derive(Debug, Serialize)]
+pub struct UpdateSnippetOutput { }
+
+/* #endregion */
+/* #region DeleteSnippet */
+
+// DELETE /snippets/{taxonomy}/{snippet_id} delet this pls
+#[delete("/snippets/<snippet_id>")]
+pub async fn delete_snippet(
+    _user: AdminOnly,
+    ctxt: &State<ApplicationContext>,
+    snippet_id: i32,
+) -> Result<Json<DeleteSnippetOutput>, super::HandlerError> {
+    let conn = ctxt.db_pool.read().get()?;
+    let snippet = Snippet::find_by_id(&conn, snippet_id)?;
 
     snippet.delete(&conn)?;
 
-    #[derive(Debug, Serialize)]
-    struct Context {
-        auth: AdminOnlyContext,
-    }
-
-    let context = Context {
-        auth: user.to_context(),
-    };
-
-    Ok(HttpResponse::Ok()
-        .set(ContentType::html())
-        .body(ctxt.render_template("snippet_deleted.html.tera", &context)))
+    Ok(Json(DeleteSnippetOutput { }))
 }
 
-// GET /snippets/{taxonomy}/{snippet_id} display a specific snippet
-pub async fn show(
-    ctxt: web::Data<ApplicationContext>,
-    session: Session,
-    web::Path((taxonomy, snippet_id)): web::Path<(String, i32)>,
-) -> Result<HttpResponse, super::HandlerError> {
-    let conn = ctxt.db_pool.get()?;
-    let user = UserOptional::from_session(&conn, &session)?;
-    let _ = taxonomy; //Useless for this context but included to keep the API consistent.
+#[derive(Debug, Serialize)]
+pub struct DeleteSnippetOutput { }
 
-    #[derive(Debug, Serialize)]
-    struct Context {
-        auth: UserOptionalContext,
-        snippet: SnippetContext,
-        is_admin: bool,
-    }
-
-    let snippet = Snippet::find_by_id(&conn, snippet_id)?;
-
-    let context = Context {
-        auth: user.to_context(),
-        snippet: SnippetContext::from(&snippet),
-        is_admin: user.is_admin(),
-    };
-
-    Ok(HttpResponse::Ok()
-        .set(ContentType::html())
-        .body(ctxt.render_template("snippet.html.tera", &context)))
-}
-
-fn parse_date(date: &str) -> Result<NaiveDateTime, DTParseError> {
-    NaiveDateTime::parse_from_str(&format!("{} 00:00:00", date), "%Y-%m-%d %H:%M:%S")
-}
-
-#[cfg(test)]
-mod tests {
-    use super::parse_date;
-
-    #[test]
-    fn date_parsing() {
-        let foo = parse_date("2021-01-01");
-        assert!(foo.is_ok());
-    }
-}
+/* #endregion */

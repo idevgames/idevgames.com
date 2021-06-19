@@ -11,6 +11,12 @@ pub struct MaybeUser {
     pub permissions: Vec<String>,
 }
 
+impl MaybeUser {
+    pub fn is_admin(&self) -> bool {
+        self.permissions.contains(&"admin".into())
+    }
+}
+
 #[rocket::async_trait]
 impl<'r> FromRequest<'r> for MaybeUser {
     type Error = AuthFromRequestError;
