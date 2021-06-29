@@ -1,7 +1,7 @@
 import {
   GetSessionInput, GetSessionOutput, GetGithubAuthorizationUrlInput,
   GetGithubAuthorizationUrlOutput, GetGithubCallbackInput,
-  GetGithubCallbackOutput, DestroySessionInput, DestroySessionOutput
+  GetGithubCallbackOutput, DeleteSessionInput, DeleteSessionOutput
 } from "./auth";
 import {
   CreateSnippetInput, CreateSnippetOutput, ListSnippetInput, ListSnippetOutput,
@@ -12,20 +12,20 @@ import {
  * Describes how to interact with the iDevGames server.
  */
 export interface Client {
-  getSession(input: GetSessionInput): GetSessionOutput;
-  getGithubAuthorizationUrl(input: GetGithubAuthorizationUrlInput): Promise<GetGithubAuthorizationUrlOutput>;
-  getGithubCallback(input: GetGithubCallbackInput): GetGithubCallbackOutput;
-  destroySession(input: DestroySessionInput): DestroySessionOutput;
+  getSession(input: GetSessionInput): Promise<GetSessionOutput>;
+  getGithubAuthorizationUrl(): Promise<GetGithubAuthorizationUrlOutput>;
+  getGithubCallback(input: GetGithubCallbackInput): Promise<GetGithubCallbackOutput>;
+  deleteSession(input: DeleteSessionInput): Promise<DeleteSessionOutput>;
   /**
    * Creates a new snippet.
    * @param input describes the snippet to create.
    */
-  createSnippet(input: CreateSnippetInput): CreateSnippetOutput;
+  // createSnippet(input: CreateSnippetInput): CreateSnippetOutput;
   /**
    * Lists existing snippets.
    * @param input describes constraints in the list snippets call.
    */
-  listSnippets(input: ListSnippetInput): ListSnippetOutput;
+  // listSnippets(input: ListSnippetInput): ListSnippetOutput;
 }
 
 /**
@@ -37,17 +37,35 @@ export class HttpClient implements Client {
    * Creates a new HttpClient.
    */
   constructor() {
-    if (process.env.NODE_ENV === 'production') {
-      this.baseUrl = 'https://www.idevgames.com/api';
-    } else {
-      this.baseUrl = 'http://localhost:4000/api';
-    }
+    this.baseUrl = '/api';
   }
-  getGithubAuthorizationUrl(input: GetGithubAuthorizationUrlInput): Promise<GetGithubAuthorizationUrlOutput> {
-    return fetch(
+  async getSession(input: GetSessionInput): Promise<GetSessionOutput> {
+    const response = await fetch(
+      this.baseUrl + '/session',
+      this.defaultFetchArgs('GET', input)
+    );
+    return await response.json();
+  }
+  async getGithubAuthorizationUrl(): Promise<GetGithubAuthorizationUrlOutput> {
+    const response = await fetch(
       this.baseUrl + '/session/github_authorization_url',
-      this.defaultFetchArgs(input)
-    ).then(response => response.json());
+      this.defaultFetchArgs('GET', null)
+    );
+    return await response.json();
+  }
+  async getGithubCallback(input: GetGithubCallbackInput): Promise<GetGithubCallbackOutput> {
+    const response = await fetch(
+      this.baseUrl + '/session/github_callback',
+      this.defaultFetchArgs('GET', input)
+    );
+    return await response.json();
+  }
+  async deleteSession(input: DeleteSessionInput): Promise<DeleteSessionOutput> {
+    const response = await fetch(
+      this.baseUrl + '/session',
+      this.defaultFetchArgs('DELETE', input)
+    );
+    return await response.json();
   }
   createSnippet(input: CreateSnippetInput): CreateSnippetOutput {
     // TODO: do the hard thing
@@ -109,18 +127,24 @@ export class HttpClient implements Client {
     };
     return {
       snippets: referenceSnippets[input.taxonomy],
-      nextPage: 0,
+      currentPage: 0,
       totalPages: 1,
     };
   }
-  defaultFetchArgs(body: any): RequestInit {
-    return {
+  defaultFetchArgs(method: string, body: any): RequestInit {
+    let args: RequestInit = {
+      method: method,
       credentials: 'include',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(body)
+    };
+
+    if (body != null) {
+      args.body = JSON.stringify(body);
     }
+
+    return args;
   }
 }

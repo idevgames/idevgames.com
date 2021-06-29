@@ -25,17 +25,17 @@ impl Serve {
                     // GET      /api/session
                     crate::controllers::auth::get_session,
                     // GET      /api/session/github_authorization_url
-                    crate::controllers::auth::github_authorization_url,
-                    // GET      /api/session/github_callback?<code>
+                    crate::controllers::auth::get_github_authorization_url,
+                    // GET      /api/session/github_callback?code=string
                     crate::controllers::auth::github_callback,
                     // DELETE   /api/session
-                    crate::controllers::auth::logout,
-                    // GET      /api/snippets?<taxonomy>&<page>&<show_hidden>
+                    crate::controllers::auth::delete,
+                    // GET      /api/snippets
                     crate::controllers::snippets::get_snippets,
-                    // GET      /api/snippets/<snippet_id>
-                    crate::controllers::snippets::get_snippet,
                     // POST     /api/snippets
                     crate::controllers::snippets::create_snippet,
+                    // GET      /api/snippets/<snippet_id>
+                    crate::controllers::snippets::get_snippet,
                     // PUT      /api/snippets/<snippet_id>
                     crate::controllers::snippets::update_snippet,
                     // DELETE   /api/snippets/<snippet_id>

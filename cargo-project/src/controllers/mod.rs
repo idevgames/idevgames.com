@@ -2,7 +2,12 @@ pub mod auth;
 pub mod snippets;
 
 use crate::{github_client::GithubClientError, helpers::AuthFromRequestError};
-use rocket::{Request, Response, http::{ContentType, Status}, response::{self, Responder}, serde::json::serde_json::json};
+use rocket::{
+    http::{ContentType, Status},
+    response::{self, Responder},
+    serde::json::serde_json::json,
+    Request, Response,
+};
 use std::{io::Cursor, num::ParseIntError};
 use thiserror::Error;
 
@@ -35,9 +40,6 @@ pub enum HandlerError {
 
     #[error("Diesel Error {0}")]
     DieselError(#[from] diesel::result::Error),
-
-    #[error("Not authorized")]
-    NotAuthorized,
 }
 
 impl HandlerError {
@@ -50,7 +52,6 @@ impl HandlerError {
             Self::ParseIntError(_) => Status::BadRequest,
             Self::DieselError(_) => Status::InternalServerError,
             Self::NotFound => Status::NotFound,
-            Self::NotAuthorized => Status::Unauthorized,
         }
     }
 
@@ -63,7 +64,6 @@ impl HandlerError {
             Self::ParseError(_) => "Unable to parse date",
             Self::ParseIntError(_) => "Unable to parse int",
             Self::DieselError(_) => "Unable to query database",
-            Self::NotAuthorized => "You are unauthorized",
         }
     }
 }
@@ -73,7 +73,8 @@ impl<'r> Responder<'r, 'static> for HandlerError {
         let status_code = self.status_code();
         let body = json!({
             "message": self.external_message()
-        }).to_string();
+        })
+        .to_string();
 
         Response::build()
             .sized_body(body.len(), Cursor::new(body))

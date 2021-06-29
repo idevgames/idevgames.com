@@ -148,9 +148,9 @@ export interface ListSnippetOutput {
    */
   snippets: Array<Snippet>;
   /**
-   * The next page in the list of snippets.
+   * The current page in the list of snippets.
    */
-  nextPage: number;
+  currentPage: number;
   /**
    * The total number of pages in the snippet list.
    */

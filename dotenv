@@ -1,14 +1,15 @@
 # you shouldn't need to modify these
+RUST_LOG=info
 DATABASE_URL=db/app.sqlite # the database url used by diesel_cli
 IDG_APP_WORKERS=16 # the number of worker threads backing this app
-IDG_APP_PORT=4000 # the port to run on
-IDG_APP_MAXDBCONNS=4 # maximum number of database connections
+IDG_PORT=4000 # the port to run on
+IDG_MAXDBCONNS=4 # maximum number of database connections
 
 # remove this when using wsl
-IDG_APP_ADDRESS=localhost
+IDG_ADDRESS=127.0.0.1
 
 # fill this in with the output of $(openssl rand -base64 32)
-IDG_APP_SECRET=
+IDG_COOKIE_SECRET=
 
 # get a new development application registered with github using the
 # instructions in the README

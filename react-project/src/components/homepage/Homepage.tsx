@@ -10,7 +10,7 @@ export default class Homepage extends React.Component {
         <div className="row">
           <div className="col">
             <h4>uDevGames</h4>
-            <SnippetList taxonomy="udevgames" page={ 0 }/>
+            <SnippetList key="links" taxonomy="udevgames" page={ 0 }/>
             <p>
               <Link to="/snippets/udevgames/new">New</Link>
               &nbsp;&middot;&nbsp;
@@ -22,7 +22,7 @@ export default class Homepage extends React.Component {
         <div className="row">
           <div className="col">
             <h4>Links and news</h4>
-            <SnippetList taxonomy="links" page={ 0 }/>
+            <SnippetList key="links" taxonomy="links" page={ 0 }/>
             <p>
               <Link to="/snippets/links/new">New</Link>
               &nbsp;&middot;&nbsp;

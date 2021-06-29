@@ -1,4 +1,5 @@
 import React from 'react';
+import SessionButton from '../session_button';
 
 export default class Footer extends React.Component {
   render() {
@@ -12,6 +13,9 @@ export default class Footer extends React.Component {
             </p>
             <p>
               Found a bug? Please report it either on <a href="https://discord.gg/r6fxVBH">Discord</a> or on <a href="https://github.com/idevgames/idevgames.com">Github</a>. Please responsibly disclose security issues directly to <abbr title="Necrothitude#0292">@mysteriouspants</abbr> over Discord Private Messaging.
+            </p>
+            <p>
+              <SessionButton/>
             </p>
           </div>
           <div className="col-md-3"></div>

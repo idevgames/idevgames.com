@@ -2,8 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Snippet } from '../../client/snippets';
 import './shortsnippet.scss';
+import { ApplicationState } from '../../application_state';
 
 export default class ShortSnippet extends React.Component<ShortSnippetProps> {
+  static contextType = ApplicationState;
+  //context: React.ContextType<typeof ApplicationState>;
+
   render() {
     const snippet = this.props.snippet;
     return (
@@ -14,8 +18,13 @@ export default class ShortSnippet extends React.Component<ShortSnippetProps> {
         </span>
         <a href={ snippet.href }>{ snippet.title }</a>&nbsp;
         { snippet.summary }
-        &nbsp;&middot;&nbsp;
-        <Link to={`/snippets/${snippet.taxonomy}/${snippet.id}/edit`}>Edit</Link>&nbsp;
+        &nbsp;
+        {this.context.permissions.includes("admin") &&
+          <span>
+            &middot;&nbsp;
+            <Link to={`/snippets/${snippet.taxonomy}/${snippet.id}/edit`}>Edit</Link>&nbsp;
+          </span>
+        }
         <Link to={`/snippets/${snippet.taxonomy}/${snippet.id}`} className="text-muted text-decoration-none">#</Link>
       </span>
     );
@@ -23,5 +32,6 @@ export default class ShortSnippet extends React.Component<ShortSnippetProps> {
 }
 
 export interface ShortSnippetProps {
+  key: number;
   snippet: Snippet;
 }

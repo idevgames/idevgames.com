@@ -1,6 +1,6 @@
+use super::{last_insert_rowid, ModelError};
 use crate::db::DbConn;
 use chrono::{NaiveDateTime, Utc};
-use super::{last_insert_rowid, ModelError};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Queryable, Serialize)]
@@ -127,9 +127,7 @@ impl Snippet {
         page: i64,
         page_size: i64,
     ) -> Result<Vec<Self>, ModelError> {
-        use crate::schema::snippets::dsl::{
-            hidden, shared_on, snippets, taxonomy
-        };
+        use crate::schema::snippets::dsl::{hidden, shared_on, snippets, taxonomy};
         use diesel::prelude::*;
 
         let q = snippets
@@ -149,8 +147,8 @@ impl Snippet {
 
     pub fn update(&self, conn: &DbConn) -> Result<(), ModelError> {
         use crate::schema::snippets::dsl::{
-            creator_id, description, hidden, href, icon, shared_by, shared_on, 
-            snippets, summary, taxonomy, title, updated_at,
+            creator_id, description, hidden, href, icon, shared_by, shared_on, snippets, summary,
+            taxonomy, title, updated_at,
         };
         use diesel::prelude::*;
 

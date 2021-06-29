@@ -41,9 +41,4 @@ table! {
     }
 }
 
-allow_tables_to_appear_in_same_query!(
-    github_user_records,
-    permissions,
-    snippets,
-    users,
-);
+allow_tables_to_appear_in_same_query!(github_user_records, permissions, snippets, users,);

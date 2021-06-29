@@ -1,6 +1,11 @@
 use std::process::exit;
 
-use crate::{application_context::ApplicationContext, db::DbConn, models::github_user_records::GithubUserRecord, models::{permissions::Permission as PermissionModel, users::User, ModelError}};
+use crate::{
+    application_context::ApplicationContext,
+    db::DbConn,
+    models::github_user_records::GithubUserRecord,
+    models::{permissions::Permission as PermissionModel, users::User, ModelError},
+};
 use clap::Clap;
 use diesel::Connection;
 
@@ -18,8 +23,8 @@ struct PermissionGrant {
 
 impl PermissionGrant {
     async fn grant(&self, ctxt: &ApplicationContext) {
-
-        let github_user_record = GithubUserRecord::find_by_login(&get_connection(ctxt), &self.user).expect("Could not query the database");
+        let github_user_record = GithubUserRecord::find_by_login(&get_connection(ctxt), &self.user)
+            .expect("Could not query the database");
         let (_, user) = match github_user_record {
             Some(gu) => {
                 let u = gu
@@ -186,5 +191,8 @@ impl Permission {
 }
 
 fn get_connection(ctxt: &ApplicationContext) -> DbConn {
-    ctxt.db_pool.read().get().expect("Could not get a connection from the pool")
+    ctxt.db_pool
+        .read()
+        .get()
+        .expect("Could not get a connection from the pool")
 }

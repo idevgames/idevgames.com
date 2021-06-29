@@ -1,10 +1,10 @@
-use std::sync::Arc;
 use diesel::{
     r2d2::{ConnectionManager, Pool, PooledConnection},
     SqliteConnection,
 };
 use diesel_migrations::embed_migrations;
 use parking_lot::RwLock;
+use std::sync::Arc;
 
 embed_migrations!("../migrations");
 

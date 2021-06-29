@@ -1,7 +1,29 @@
 use super::HandlerError;
-use crate::{application_context::ApplicationContext, db::DbPool, github_client::GithubClient, helpers::maybe_user::MaybeUser, models::{GithubUserRecord, User}};
-use rocket::{State, delete, get, http::{Cookie, CookieJar}, serde::json::Json};
-use serde::Serialize;
+use crate::{
+    application_context::ApplicationContext,
+    db::DbPool,
+    github_client::GithubClient,
+    helpers::maybe_user::MaybeUser,
+    models::{GithubUserRecord, Permission, User},
+};
+use rocket::{
+    delete, get,
+    http::{Cookie, CookieJar},
+    serde::json::Json,
+    State,
+};
+use serde::{Deserialize, Serialize};
+
+/// The concept of a session which is re-used by several calls.
+/// Permissions are separated out, and even when there is no session
+/// identity an empty list of permissions will be returned.
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SessionIdentity {
+    id: i32,
+    github_user_id: i64,
+    login: String,
+}
 
 /// Describes the currently logged in user, if there is a user logged
 /// in.
@@ -17,35 +39,41 @@ pub async fn get_session(user: MaybeUser) -> Json<GetSessionOutput> {
             permissions: user.permissions,
         })
     } else {
-        Json(GetSessionOutput { user: None, permissions: vec![] })
+        Json(GetSessionOutput {
+            user: None,
+            permissions: vec![],
+        })
     }
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetSessionInput {}
+
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GetSessionOutput {
     user: Option<SessionIdentity>,
     permissions: Vec<String>,
 }
 
-#[derive(Debug, Serialize)]
-pub struct SessionIdentity {
-    id: i32,
-    github_user_id: i64,
-    login: String,
-}
-
 /// The URL that a client should redirect the user to in order to start
 /// the login process.
 #[get("/session/github_authorization_url")]
-pub async fn github_authorization_url(
+pub async fn get_github_authorization_url(
     ctxt: &State<ApplicationContext>,
-) -> Json<GithubAuthorizationUrlOutput> {
+) -> Json<GetGithubAuthorizationUrlOutput> {
     let url = ctxt.github_client.authorization_url();
-    Json(GithubAuthorizationUrlOutput { url: url.into() })
+    Json(GetGithubAuthorizationUrlOutput { url: url.into() })
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetGithubAuthorizationUrlInput {}
+
 #[derive(Debug, Serialize)]
-pub struct GithubAuthorizationUrlOutput {
+#[serde(rename_all = "camelCase")]
+pub struct GetGithubAuthorizationUrlOutput {
     url: String,
 }
 
@@ -60,20 +88,40 @@ pub async fn github_callback(
     cookies: &CookieJar<'_>,
     code: &str,
 ) -> Result<Json<GithubCallbackOutput>, super::HandlerError> {
-    let (user, _github_user) = auth_with_github(
-        &ctxt.github_client, &ctxt.db_pool, code
-    ).await?;
+    let (user, github_user) =
+        auth_with_github(&ctxt.github_client, &ctxt.db_pool, code).await?;
+    let permissions = Permission::find_by_user_id(&ctxt.db_pool.read().get()?, user.id)?;
     let cookie = Cookie::new("user_id", user.id.to_string());
 
     cookies.add_private(cookie);
 
-    Ok(Json(GithubCallbackOutput {}))
+    Ok(Json(GithubCallbackOutput {
+        user: SessionIdentity {
+            id: user.id,
+            github_user_id: github_user.id,
+            login: github_user.login,
+        },
+        permissions: permissions
+            .iter()
+            .map(|permission| permission.name.clone())
+            .collect(),
+    }))
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GithubCallbackInput {
+    code: String,
 }
 
 /// Anything we went to communicate back to the client on successful
 /// login with Github.
 #[derive(Debug, Serialize)]
-pub struct GithubCallbackOutput {}
+#[serde(rename_all = "camelCase")]
+pub struct GithubCallbackOutput {
+    user: SessionIdentity,
+    permissions: Vec<String>,
+}
 
 /// Authenticates with Github by exchanging the access code the user
 // gave us for an access token that Github issues us. Fetches the user's
@@ -102,11 +150,19 @@ async fn auth_with_github(
 }
 
 /// Logs the user out. Pitches all the cookies we set.
-#[delete("/session")]
-pub async fn logout(cookies: &CookieJar<'_>) -> Json<LogoutOutput> {
+#[delete("/session", data = "<_input>")]
+pub async fn delete(
+    cookies: &CookieJar<'_>,
+    _input: Json<DeleteSessionInput>,
+) -> Json<DeleteSessionOutput> {
     cookies.remove_private(Cookie::named("gh_user_id"));
-    Json(LogoutOutput {})
+    Json(DeleteSessionOutput {})
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteSessionInput {}
+
 #[derive(Debug, Serialize)]
-pub struct LogoutOutput {}
+#[serde(rename_all = "camelCase")]
+pub struct DeleteSessionOutput {}

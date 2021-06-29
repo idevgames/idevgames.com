@@ -1,5 +1,8 @@
 use super::AuthFromRequestError;
-use crate::{helpers::auth_from_request, models::{GithubUserRecord, User}};
+use crate::{
+    helpers::auth_from_request,
+    models::{GithubUserRecord, User},
+};
 use rocket::{
     http::Status,
     request::{FromRequest, Outcome},

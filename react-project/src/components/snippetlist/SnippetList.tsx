@@ -19,7 +19,7 @@ export default class SnippetList extends React.Component<SnippetListProps, Snipp
   }
   render() {
     const snippetList = this.state.snippets.map((snippet) => (
-      <ShortSnippet snippet={snippet}/>
+      <ShortSnippet key={snippet.id} snippet={snippet}/>
     ));
     return (
       <div className="snippet-list">
@@ -30,6 +30,7 @@ export default class SnippetList extends React.Component<SnippetListProps, Snipp
 }
 
 export interface SnippetListProps {
+  key: string;
   taxonomy: string;
   page: number;
 }

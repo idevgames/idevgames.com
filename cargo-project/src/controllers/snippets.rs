@@ -5,7 +5,7 @@ use crate::{
     models::{ModelError, Snippet},
 };
 use chrono::NaiveDateTime;
-use rocket::{State, delete, get, post, put, serde::json::Json};
+use rocket::{delete, get, post, put, serde::json::Json, State};
 use serde::{Deserialize, Serialize};
 
 /* #region GetSnippets */
@@ -20,10 +20,10 @@ pub async fn get_snippets(
 ) -> Result<Json<GetSnippetsOutput>, super::HandlerError> {
     let conn = ctxt.db_pool.read().get()?;
     let show_hidden = user.is_admin() && show_hidden;
-    let page = page;
     let page_size = 5;
 
-    let snippets = GetSnippetsOutput::new(&conn, page, page_size, &taxonomy, !show_hidden)?;
+    let snippets =
+        GetSnippetsOutput::new(&conn, page, page_size, taxonomy, !show_hidden)?;
 
     Ok(Json(snippets))
 }
@@ -157,7 +157,7 @@ pub async fn update_snippet(
 
     snippet.update(&conn)?;
 
-    Ok(Json(UpdateSnippetOutput { }))
+    Ok(Json(UpdateSnippetOutput {}))
 }
 
 #[derive(Debug, Deserialize)]
@@ -174,7 +174,7 @@ pub struct UpdateSnippetInput {
 }
 
 #[derive(Debug, Serialize)]
-pub struct UpdateSnippetOutput { }
+pub struct UpdateSnippetOutput {}
 
 /* #endregion */
 /* #region DeleteSnippet */
@@ -191,10 +191,10 @@ pub async fn delete_snippet(
 
     snippet.delete(&conn)?;
 
-    Ok(Json(DeleteSnippetOutput { }))
+    Ok(Json(DeleteSnippetOutput {}))
 }
 
 #[derive(Debug, Serialize)]
-pub struct DeleteSnippetOutput { }
+pub struct DeleteSnippetOutput {}
 
 /* #endregion */

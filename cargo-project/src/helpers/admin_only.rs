@@ -19,7 +19,10 @@ impl<'r> FromRequest<'r> for AdminOnly {
         match auth_from_request(req) {
             Ok(Some((user, github_user, permissions))) => {
                 if permissions.contains(&"admin".to_string()) {
-                    Outcome::Success(AdminOnly { user: (user, github_user), permissions })
+                    Outcome::Success(AdminOnly {
+                        user: (user, github_user),
+                        permissions,
+                    })
                 } else {
                     // because AdminOnly works on an API call and not on
                     // a resource there is no real danger of leaking the
