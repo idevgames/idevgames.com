@@ -4,6 +4,7 @@ use chrono::{NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Queryable, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Snippet {
     pub id: i32,
     pub creator_id: i32,

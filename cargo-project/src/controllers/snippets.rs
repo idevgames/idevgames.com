@@ -22,13 +22,13 @@ pub async fn get_snippets(
     let show_hidden = user.is_admin() && show_hidden;
     let page_size = 5;
 
-    let snippets =
-        GetSnippetsOutput::new(&conn, page, page_size, taxonomy, !show_hidden)?;
+    let snippets = GetSnippetsOutput::new(&conn, page, page_size, taxonomy, !show_hidden)?;
 
     Ok(Json(snippets))
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GetSnippetsOutput {
     snippets: Vec<Snippet>,
     current_page: i32,
@@ -83,6 +83,7 @@ pub async fn get_snippet(
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GetSnippetOutput {
     snippet: Snippet,
 }
@@ -116,6 +117,7 @@ pub async fn create_snippet(
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateSnippetInput {
     taxonomy: String,
     hidden: bool,
@@ -129,6 +131,7 @@ pub struct CreateSnippetInput {
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateSnippetOutput {
     snippet: Snippet,
 }
@@ -161,6 +164,7 @@ pub async fn update_snippet(
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateSnippetInput {
     taxonomy: String,
     hidden: bool,
@@ -174,6 +178,7 @@ pub struct UpdateSnippetInput {
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateSnippetOutput {}
 
 /* #endregion */
@@ -195,6 +200,7 @@ pub async fn delete_snippet(
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DeleteSnippetOutput {}
 
 /* #endregion */

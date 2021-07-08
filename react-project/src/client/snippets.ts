@@ -38,7 +38,7 @@ export interface Snippet {
    * it was shared on Discord, not the date I actually bothered to put
    * it on the site.
    */
-  sharedOn: string;
+  sharedOn: Date;
   /**
    * A summary of this snippet.
    */
@@ -55,11 +55,11 @@ export interface Snippet {
   /**
    * When this snippet was created.
    */
-  createdAt: string;
+  createdAt: Date;
   /**
    * The date of the last update to this snippet.
    */
-  updatedAt: string;
+  updatedAt: Date;
 }
 
 /**
@@ -94,7 +94,7 @@ export interface CreateSnippetInput {
    * it was shared on Discord, not the date I actually bothered to put
    * it on the site.
    */
-  sharedOn: string;
+  sharedOn: Date;
   /**
    * A summary of this snippet.
    */

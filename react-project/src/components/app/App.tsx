@@ -1,41 +1,37 @@
-import React from 'react';
 import {
   BrowserRouter as Router,
   Switch,
   Route,
 } from "react-router-dom";
 import './App.scss';
-import Header from '../header/header';
-import Footer from '../footer/footer';
+import Header from '../header/Header';
+import Footer from '../Footer';
 import Homepage from '../homepage/Homepage';
-import ApplicationStateProvider from '../../application_state';
-import { ApplicationState } from '../../application_state'
+import GithubCallback from '../GithubCallback';
 
-export default class App extends React.Component {
-  componentDidMount() {
-  }
-  render() {
-    return (
-      <ApplicationStateProvider>
-        <Router>
-          <Header/>
-          <div className="superbox">
-            <Switch>
-              <Route path="/">
-                <Homepage/>
-              </Route>
-              <Route path="/about">
-                About
-              </Route>
-              <Route path="/users">
-                Bar
-              </Route>
-            </Switch>
-          </div>
+export interface AppProps { }
 
-          <Footer/>
-        </Router>
-      </ApplicationStateProvider>
-    )
-  }
+export default function App(_props: AppProps) {
+  return (
+    <Router>
+      <Header />
+      <div className="superbox">
+        <Switch>
+          <Route exact path="/">
+            <Homepage />
+          </Route>
+          <Route path="/github_callback">
+            <GithubCallback />
+          </Route>
+          <Route path="/snippets/:taxonomy">
+            About
+          </Route>
+          <Route path="/users">
+            Bar
+          </Route>
+        </Switch>
+      </div>
+      <Footer />
+    </Router>
+  );
 }

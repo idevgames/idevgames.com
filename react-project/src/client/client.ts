@@ -1,72 +1,96 @@
+import { createSlice } from '@reduxjs/toolkit';
+
 import {
-  GetSessionInput, GetSessionOutput, GetGithubAuthorizationUrlInput,
-  GetGithubAuthorizationUrlOutput, GetGithubCallbackInput,
-  GetGithubCallbackOutput, DeleteSessionInput, DeleteSessionOutput
-} from "./auth";
+  GetSessionOutput, GetGithubAuthorizationUrlOutput, GetGithubCallbackInput,
+  GetGithubCallbackOutput, DeleteSessionOutput,
+} from './auth';
 import {
   CreateSnippetInput, CreateSnippetOutput, ListSnippetInput, ListSnippetOutput,
-  Snippet
-} from "./snippets";
+} from './snippets';
 
 /**
- * Describes how to interact with the iDevGames server.
+ * Serializable properties used to construct HttpClients.
  */
-export interface Client {
-  getSession(input: GetSessionInput): Promise<GetSessionOutput>;
-  getGithubAuthorizationUrl(): Promise<GetGithubAuthorizationUrlOutput>;
-  getGithubCallback(input: GetGithubCallbackInput): Promise<GetGithubCallbackOutput>;
-  deleteSession(input: DeleteSessionInput): Promise<DeleteSessionOutput>;
+export interface HttpClientProps {
   /**
-   * Creates a new snippet.
-   * @param input describes the snippet to create.
+   * The base of the url's path part.
    */
-  // createSnippet(input: CreateSnippetInput): CreateSnippetOutput;
-  /**
-   * Lists existing snippets.
-   * @param input describes constraints in the list snippets call.
-   */
-  // listSnippets(input: ListSnippetInput): ListSnippetOutput;
+  baseUrl: string,
 }
 
 /**
  * A client which interacts with the iDevGames server.
  */
-export class HttpClient implements Client {
-  baseUrl: string;
+export class HttpClient {
+  /**
+   * The base url path.
+   */
+  readonly baseUrl: string;
+
   /**
    * Creates a new HttpClient.
    */
-  constructor() {
-    this.baseUrl = '/api';
+  constructor(props: HttpClientProps) {
+    this.baseUrl = props.baseUrl;
   }
-  async getSession(input: GetSessionInput): Promise<GetSessionOutput> {
-    const response = await fetch(
+
+  /**
+   * Gets the current session identity, if any.
+   * @returns the current session identity, if any.
+   */
+  async getSession(): Promise<GetSessionOutput> {
+    const r = await fetch(
       this.baseUrl + '/session',
-      this.defaultFetchArgs('GET', input)
+      this.defaultFetchArgs('GET', null)
     );
-    return await response.json();
+    return await r.json();
   }
+
+  /**
+   * Gets a Github Authorization URL, which starts the OAuth process.
+   * @returns Gets the Github authorization URL, which is where to send
+   * the customer to log in with Github.
+   */
   async getGithubAuthorizationUrl(): Promise<GetGithubAuthorizationUrlOutput> {
     const response = await fetch(
       this.baseUrl + '/session/github_authorization_url',
       this.defaultFetchArgs('GET', null)
     );
-    return await response.json();
+    return response.json();
   }
+
+  /**
+   * Takes the OAuth code returned by Github to the user and hands it
+   * off to the backend, which then hands it back to Github to establish
+   * the chain of trust and log the customer in.
+   * @param input Github callback input.
+   * @returns The result of the callback, which is a new session
+   * identity.
+   */
   async getGithubCallback(input: GetGithubCallbackInput): Promise<GetGithubCallbackOutput> {
-    const response = await fetch(
-      this.baseUrl + '/session/github_callback',
-      this.defaultFetchArgs('GET', input)
+    const r = await fetch(
+      this.baseUrl + `/session/github_callback?code=${input.code}`,
+      this.defaultFetchArgs('GET', null)
     );
-    return await response.json();
+    return await r.json();
   }
-  async deleteSession(input: DeleteSessionInput): Promise<DeleteSessionOutput> {
+
+  /**
+   * Deletes the current session, logging the user out.
+   * @returns Session deletion result.
+   */
+  async deleteSession(): Promise<DeleteSessionOutput> {
     const response = await fetch(
       this.baseUrl + '/session',
-      this.defaultFetchArgs('DELETE', input)
+      this.defaultFetchArgs('DELETE', null)
     );
-    return await response.json();
+    return response.json();
   }
+
+  /**
+   * Creates a new snippet.
+   * @param input describes the snippet to create.
+   */
   createSnippet(input: CreateSnippetInput): CreateSnippetOutput {
     // TODO: do the hard thing
     return {
@@ -82,54 +106,30 @@ export class HttpClient implements Client {
         summary: input.summary,
         description: input.description,
         href: input.href,
-        createdAt: Date(),
-        updatedAt: Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }
     }
   }
-  listSnippets(input: ListSnippetInput): ListSnippetOutput {
-    // TODO: do the hard thing
-    const referenceSnippets: { [index: string]: Snippet[] } = {
-      "links": [
-        {
-          id: 1,
-          creatorId: 1,
-          taxonomy: "links",
-          hidden: false,
-          title: "www.blender.org: Blender 2.82 released",
-          icon: "blender.png",
-          sharedBy: "mysteriouspants",
-          sharedOn: "2020-02-14",
-          summary: "The Blender Foundation has released version 2.82 of their incredible free and open-source 3D-modelling and animation software, including features such as improved fluid and smoke simulation.",
-          description: "",
-          href: "https://www.blender.org/press/blender-2-82-released/",
-          createdAt: "sometime",
-          updatedAt: "sometime",
-        }
-      ],
-      "udevgames": [
-        {
-          id: 2,
-          creatorId: 1,
-          taxonomy: "udevgames",
-          hidden: false,
-          title: "uDevGames 2021Q1",
-          icon: "itchio.png",
-          sharedBy: "mysteriouspants",
-          sharedOn: "2021-01-23",
-          summary: "A quarter-long, freeform, hobbyist game jam.",
-          description: "",
-          href: "https://itch.io/jam/udevgames-2021q1",
-          createdAt: "sometime",
-          updatedAt: "sometime",
-        }
-      ]
-    };
-    return {
-      snippets: referenceSnippets[input.taxonomy],
-      currentPage: 0,
-      totalPages: 1,
-    };
+
+  /**
+   * Lists existing snippets.
+   * @param input describes constraints in the list snippets call.
+   */
+  async listSnippets(input: ListSnippetInput): Promise<ListSnippetOutput> {
+    const response = await fetch(
+      this.baseUrl + `/snippets?taxonomy=${input.taxonomy}&page=${input.page}&showHidden=${input.showHidden}`,
+      this.defaultFetchArgs('GET', null),
+    );
+    const output: ListSnippetOutput = await response.json();
+    // this is super annoying but updates plain strings from json into
+    // proper dates that can be reasoned about.
+    output.snippets.forEach(snippet => {
+      snippet.createdAt = new Date(snippet.createdAt);
+      snippet.updatedAt = new Date(snippet.updatedAt);
+      snippet.sharedOn = new Date(snippet.sharedOn);
+    });
+    return output;
   }
   defaultFetchArgs(method: string, body: any): RequestInit {
     let args: RequestInit = {
@@ -148,3 +148,25 @@ export class HttpClient implements Client {
     return args;
   }
 }
+
+/**
+ * The initial state for the HttpClient. We don't need to mutate this,
+ * so it won't have any reducer functions.
+ */
+const initialState: HttpClientProps = {
+  baseUrl: '/api',
+};
+
+/**
+ * Redux slice for the HttpClient properties.
+ */
+export const clientPropsSlice = createSlice({
+  name: 'clientProps',
+  initialState,
+  reducers: {},
+});
+
+/**
+ * Reducer which is handed off to Redux.
+ */
+export default clientPropsSlice.reducer;

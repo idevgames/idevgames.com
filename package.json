@@ -2,5 +2,10 @@
   "name": "idevgames-com",
   "workspaces": [
     "react-project"
-  ]
+  ],
+  "dependencies": {
+    "@reduxjs/toolkit": "^1.6.0",
+    "@types/react-redux": "^7.1.16",
+    "react-redux": "^7.2.4"
+  }
 }
