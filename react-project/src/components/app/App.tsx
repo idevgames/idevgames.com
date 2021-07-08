@@ -8,6 +8,7 @@ import Header from '../header/Header';
 import Footer from '../Footer';
 import Homepage from '../homepage/Homepage';
 import GithubCallback from '../GithubCallback';
+import SnippetsPage from '../SnippetsPage';
 
 export interface AppProps { }
 
@@ -23,8 +24,8 @@ export default function App(_props: AppProps) {
           <Route path="/github_callback">
             <GithubCallback />
           </Route>
-          <Route path="/snippets/:taxonomy">
-            About
+          <Route path="/snippets/:taxonomy/page/:page">
+            <SnippetsPage />
           </Route>
           <Route path="/users">
             Bar

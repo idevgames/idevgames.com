@@ -1,4 +1,5 @@
 import React from 'react';
+import { Fragment } from 'react';
 import { setSession } from '../session';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { GetGithubAuthorizationUrlOutput } from '../client/auth';
@@ -52,13 +53,13 @@ export default function SessionButton(_props: any) {
   }, []);
 
   if (session.sessionIdentity === null) {
-    return <span>
+    return <Fragment>
       Editors of the site can <a href="#login" onClick={doLogin}>login</a>.
-    </span>;
+    </Fragment>;
   } else {
-    return <span>
+    return <Fragment>
       Hello {session.sessionIdentity?.login}!&nbsp;
       <a href="#logout" onClick={doLogout}>Logout</a>
-    </span>;
+    </Fragment>;
   }
 }

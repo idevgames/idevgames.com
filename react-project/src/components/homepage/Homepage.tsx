@@ -7,14 +7,14 @@ export default function Homepage() {
       <div className="row">
         <div className="col">
           <h4>uDevGames</h4>
-          <SnippetList key="links" taxonomy="udevgames" page={0} showPager={false} />
+          <SnippetList key="links" taxonomy="udevgames" page={0} showPager={false} showHidden={false} />
         </div>
       </div>
 
       <div className="row">
         <div className="col">
           <h4>Links and news</h4>
-          <SnippetList key="links" taxonomy="links" page={0} showPager={false} />
+          <SnippetList key="links" taxonomy="links" page={0} showPager={false} showHidden={false} />
         </div>
       </div>
 

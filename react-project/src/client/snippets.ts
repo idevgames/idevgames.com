@@ -131,12 +131,12 @@ export interface ListSnippetInput {
   /**
    * The page number to fetch; defaults to zero.
    */
-  page?: number;
+  page: number;
   /**
    * Whether to show hidden snippets. You must be logged in and marked
    * as an admin for this to work. Defaults to false.
    */
-  showHidden?: boolean;
+  showHidden: boolean;
 }
 
 /**
