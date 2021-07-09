@@ -5,7 +5,7 @@ import {
   GetGithubCallbackOutput, DeleteSessionOutput,
 } from './auth';
 import {
-  CreateSnippetInput, CreateSnippetOutput, ListSnippetInput, ListSnippetOutput,
+  CreateSnippetInput, CreateSnippetOutput, GetSnippetInput, GetSnippetOutput, ListSnippetInput, ListSnippetOutput, Snippet,
 } from './snippets';
 
 /**
@@ -124,13 +124,25 @@ export class HttpClient {
     const output: ListSnippetOutput = await response.json();
     // this is super annoying but updates plain strings from json into
     // proper dates that can be reasoned about.
-    output.snippets.forEach(snippet => {
-      snippet.createdAt = new Date(snippet.createdAt);
-      snippet.updatedAt = new Date(snippet.updatedAt);
-      snippet.sharedOn = new Date(snippet.sharedOn);
-    });
+    output.snippets.forEach(snippet => parseSnippetDates(snippet));
     return output;
   }
+
+  /**
+   * Gets a single Snippet.
+   * @param input the snippet to get.
+   * @returns the snippet that was got.
+   */
+  async getSnippet(input: GetSnippetInput): Promise<GetSnippetOutput> {
+    const response = await fetch(
+      this.baseUrl + '/snippets/' + input.snippetId,
+      this.defaultFetchArgs('GET', null),
+    );
+    const output: GetSnippetOutput = await response.json();
+    parseSnippetDates(output.snippet);
+    return output;
+  }
+
   defaultFetchArgs(method: string, body: any): RequestInit {
     let args: RequestInit = {
       method: method,
@@ -147,6 +159,13 @@ export class HttpClient {
 
     return args;
   }
+}
+
+function parseSnippetDates(snippet: Snippet): Snippet {
+  snippet.createdAt = new Date(snippet.createdAt);
+  snippet.updatedAt = new Date(snippet.updatedAt);
+  snippet.sharedOn = new Date(snippet.sharedOn);
+  return snippet;
 }
 
 /**

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Snippet } from '../../client/snippets';
 import { useAppSelector } from '../../hooks';
+import { snippetPage } from '../../namedRoutes';
 import './shortsnippet.scss';
 
 export interface ShortSnippetProps {
@@ -31,7 +32,7 @@ export default function ShortSnippet(props: ShortSnippetProps) {
           <Link to={`/snippets/${snippet.taxonomy}/${snippet.id}/edit`}>Edit</Link>&nbsp;
         </span>
       }
-      <Link to={`/snippets/${snippet.taxonomy}/${snippet.id}`} className="text-muted text-decoration-none">#</Link>
+      <Link to={snippetPage(snippet.taxonomy, snippet.id)} className="text-muted text-decoration-none">#</Link>
     </div>
   );
 }

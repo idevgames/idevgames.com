@@ -11,7 +11,6 @@ mod controllers;
 mod db;
 mod github_client;
 mod helpers;
-mod icons;
 mod models;
 mod schema;
 

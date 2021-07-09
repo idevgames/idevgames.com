@@ -156,3 +156,23 @@ export interface ListSnippetOutput {
    */
   totalPages: number;
 }
+
+/**
+ * Input to the GetSnippet call.
+ */
+export interface GetSnippetInput {
+  /**
+   * The id of the snippet to retrieve.
+   */
+  snippetId: number;
+}
+
+/**
+ * Output from the GetSnippet call.
+ */
+export interface GetSnippetOutput {
+  /**
+   * The snippet that was found.
+   */
+  snippet: Snippet;
+}

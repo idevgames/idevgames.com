@@ -5,3 +5,7 @@ export function snippetsPage(taxonomy: string, page: number, showHidden: boolean
     }
     return route;
 }
+
+export function snippetPage(taxonomy: string, snippetId: number): string {
+    return `/snippets/${taxonomy}/${snippetId}`;
+}
