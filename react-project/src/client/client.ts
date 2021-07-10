@@ -5,7 +5,9 @@ import {
   GetGithubCallbackOutput, DeleteSessionOutput,
 } from './auth';
 import {
-  CreateSnippetInput, CreateSnippetOutput, GetSnippetInput, GetSnippetOutput, ListSnippetInput, ListSnippetOutput, Snippet,
+  CreateSnippetInput, CreateSnippetOutput, GetSnippetInput, GetSnippetOutput,
+  ListSnippetInput, ListSnippetOutput, Snippet, UpdateSnippetInput,
+  UpdateSnippetOutput,
 } from './snippets';
 
 /**
@@ -143,7 +145,21 @@ export class HttpClient {
     return output;
   }
 
-  defaultFetchArgs(method: string, body: any): RequestInit {
+  /**
+   * Updates a single snippet.
+   * @param input snippet input data.
+   * @returns The result.
+   */
+  async updateSnippet(input: UpdateSnippetInput): Promise<UpdateSnippetOutput> {
+    const response = await fetch(
+      this.baseUrl + '/snippets/' + input.id,
+      this.defaultFetchArgs('PUT', input),
+    );
+    const output: UpdateSnippetOutput = await response.json();
+    return output;
+  }
+
+  defaultFetchArgs<T>(method: string, body: T): RequestInit {
     let args: RequestInit = {
       method: method,
       credentials: 'include',
@@ -154,6 +170,8 @@ export class HttpClient {
     };
 
     if (body != null) {
+      const t: T = {} as T;
+      console.log(t);
       args.body = JSON.stringify(body);
     }
 

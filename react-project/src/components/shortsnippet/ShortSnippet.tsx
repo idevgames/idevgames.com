@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Snippet } from '../../client/snippets';
 import { useAppSelector } from '../../hooks';
 import { snippetPage } from '../../namedRoutes';
+import { toSimpleDate } from '../../dateUtils';
 import './shortsnippet.scss';
 
 export interface ShortSnippetProps {
@@ -19,9 +20,7 @@ export default function ShortSnippet(props: ShortSnippetProps) {
     <div className="short-snippet">
       <img src={`/icons/${snippet.icon}`} className="icon" alt="" />&nbsp;
       <span className="font-weight-heavy">
-        {snippet.sharedBy} shared on {snippet.sharedOn.getFullYear()}-
-        {snippet.sharedOn.getMonth().toLocaleString('en', { minimumIntegerDigits: 2 })}-
-        {snippet.sharedOn.getDay().toLocaleString('en', { minimumIntegerDigits: 2 })}:&nbsp;
+        {snippet.sharedBy} shared on {toSimpleDate(snippet.sharedOn)}:&nbsp;
       </span>
       <a href={snippet.href}>{snippet.title}</a>&nbsp;
       {snippet.summary}

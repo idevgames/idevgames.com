@@ -4,7 +4,7 @@ use crate::{
     helpers::{admin_only::AdminOnly, maybe_user::MaybeUser},
     models::{ModelError, Snippet},
 };
-use chrono::NaiveDateTime;
+use chrono::{DateTime, FixedOffset};
 use rocket::{delete, get, post, put, serde::json::Json, State};
 use serde::{Deserialize, Serialize};
 
@@ -107,7 +107,7 @@ pub async fn create_snippet(
         &input.icon,
         &input.title,
         &input.shared_by,
-        &input.shared_on,
+        &input.shared_on.naive_utc(),
         &input.summary,
         &input.description,
         &input.href,
@@ -124,7 +124,7 @@ pub struct CreateSnippetInput {
     title: String,
     icon: String,
     shared_by: String,
-    shared_on: NaiveDateTime,
+    shared_on: DateTime<FixedOffset>,
     summary: String,
     description: String,
     href: String,
@@ -153,7 +153,7 @@ pub async fn update_snippet(
     snippet.title = input.title.clone();
     snippet.icon = input.icon.clone();
     snippet.shared_by = input.shared_by.clone();
-    snippet.shared_on = input.shared_on.clone();
+    snippet.shared_on = input.shared_on.naive_utc().clone();
     snippet.summary = input.summary.clone();
     snippet.description = input.description.clone();
     snippet.href = input.href.clone();
@@ -171,7 +171,7 @@ pub struct UpdateSnippetInput {
     title: String,
     icon: String,
     shared_by: String,
-    shared_on: NaiveDateTime,
+    shared_on: DateTime<FixedOffset>,
     summary: String,
     description: String,
     href: String,
@@ -204,3 +204,27 @@ pub async fn delete_snippet(
 pub struct DeleteSnippetOutput {}
 
 /* #endregion */
+
+#[cfg(test)]
+mod tests {
+    use chrono::{DateTime, FixedOffset};
+    use rocket::serde::Deserialize;
+
+    #[test]
+    fn test_date_deserialization() {
+        // an example of a date that client-side json would deserialze
+        let js_date = "{\"jsDate\":\"2021-01-23T00:00:00.000Z\"}";
+
+        #[derive(Deserialize)]
+        #[serde(rename_all = "camelCase")]
+        struct TestStruct {
+            js_date: DateTime<FixedOffset>,
+        }
+
+        let deserialized: TestStruct = rocket::serde::json::from_str(js_date).unwrap();
+        assert_eq!(
+            "2021-01-23 00:00:00 +00:00",
+            deserialized.js_date.to_string()
+        );
+    }
+}

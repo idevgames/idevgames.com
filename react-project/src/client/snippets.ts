@@ -176,3 +176,54 @@ export interface GetSnippetOutput {
    */
   snippet: Snippet;
 }
+
+export interface UpdateSnippetInput {
+  /**
+   * The database id of this snippet.
+   */
+  id: number;
+  /**
+   * The taxonomy of this snippet, which is roughly the collection the
+   * snippet belongs to.
+   */
+  taxonomy: string;
+  /**
+   * Whether the snippet is hidden from view or not.
+   */
+  hidden: boolean;
+  /**
+   * The title of this snippet.
+   */
+  title: string;
+  /**
+   * The icon associated with this snippet.
+   */
+  icon: string;
+  /**
+   * Who shared this snippet.
+   */
+  sharedBy: string;
+  /**
+   * When this snippet was shared. I try to make sure this is the date
+   * it was shared on Discord, not the date I actually bothered to put
+   * it on the site.
+   */
+  sharedOn: Date;
+  /**
+   * A summary of this snippet.
+   */
+  summary: string;
+  /**
+   * A longform description of this snippet. Currently unused and most
+   * snippets don't have this filled in.
+   */
+  description: string;
+  /**
+   * Snippets are links to further content. This is that link.
+   */
+  href: string;
+}
+
+export interface UpdateSnippetOutput {
+
+}

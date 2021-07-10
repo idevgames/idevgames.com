@@ -10,10 +10,9 @@ import Homepage from '../homepage/Homepage';
 import GithubCallback from '../GithubCallback';
 import SnippetsPage from '../SnippetsPage';
 import SingleSnippet from '../SingleSnippet';
+import EditSnippetPage from '../EditSnippetPage';
 
-export interface AppProps { }
-
-export default function App(_props: AppProps) {
+export default function App() {
   return (
     <Router>
       <Header />
@@ -28,11 +27,11 @@ export default function App(_props: AppProps) {
           <Route path="/snippets/:taxonomy/page/:page">
             <SnippetsPage />
           </Route>
+          <Route path="/snippets/:taxonomy/:snippetId/edit">
+            <EditSnippetPage />
+          </Route>
           <Route path="/snippets/:taxonomy/:snippetId">
             <SingleSnippet />
-          </Route>
-          <Route path="/users"> // edit form next
-            Bar
           </Route>
         </Switch>
       </div>
