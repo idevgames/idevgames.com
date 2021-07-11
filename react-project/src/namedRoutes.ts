@@ -9,3 +9,7 @@ export function snippetsPage(taxonomy: string, page: number, showHidden: boolean
 export function snippetPage(taxonomy: string, snippetId: number): string {
     return `/snippets/${taxonomy}/${snippetId}`;
 }
+
+export function editSnippetPage(taxonomy: string, snippetId: number): string {
+    return snippetPage(taxonomy, snippetId) + '/edit';
+}

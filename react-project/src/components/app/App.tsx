@@ -11,6 +11,7 @@ import GithubCallback from '../GithubCallback';
 import SnippetsPage from '../SnippetsPage';
 import SingleSnippet from '../SingleSnippet';
 import EditSnippetPage from '../EditSnippetPage';
+import CreateSnippetPage from '../CreateSnippetPage';
 
 export default function App() {
   return (
@@ -26,6 +27,9 @@ export default function App() {
           </Route>
           <Route path="/snippets/:taxonomy/page/:page">
             <SnippetsPage />
+          </Route>
+          <Route path="/snippets/:taxonomy/new">
+            <CreateSnippetPage />
           </Route>
           <Route path="/snippets/:taxonomy/:snippetId/edit">
             <EditSnippetPage />

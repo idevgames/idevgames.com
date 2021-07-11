@@ -4,26 +4,12 @@ import { HttpClient } from '../client/client';
 import { Snippet } from '../client/snippets';
 import { useAppSelector } from '../hooks';
 import SnippetForm from './SnippetForm';
+import AdminOnly from './AdminOnly';
 
 export default function EditSnippetPage() {
-  return <EditSnippetAuthorization />;
-}
-
-function EditSnippetAuthorization() {
-  const session = useAppSelector(state => state.session);
-
-  if (!session.permissions.includes('admin')) {
-    // this is something of a formality, the backend will reject edits
-    // anyway.
-    return <>
-      <h1>Not authorized</h1>
-      <p>
-        Only editors may modify this site content.
-      </p>
-    </>;
-  } else {
-    return <LoadSnippet />;
-  }
+  return <AdminOnly>
+    <LoadSnippet />
+  </AdminOnly>;
 }
 
 type RouteParams = {
@@ -44,7 +30,7 @@ function LoadSnippet() {
   }, [client, snippetId]);
 
   if (snippet) {
-    return <SnippetForm snippet={snippet} onSubmit={(values => {
+    return <SnippetForm title="Edit snippet" snippet={snippet} onSubmit={(values => {
       client.updateSnippet({ ...values, id: snippetId, taxonomy: snippet.taxonomy, })
         .then((_updateSnippetOutput) => {
           setSnippet({ ...snippet, ...values, });

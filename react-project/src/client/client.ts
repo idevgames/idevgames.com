@@ -92,31 +92,22 @@ export class HttpClient {
   /**
    * Creates a new snippet.
    * @param input describes the snippet to create.
+   * @returns the snippet that was created.
    */
-  createSnippet(input: CreateSnippetInput): CreateSnippetOutput {
-    // TODO: do the hard thing
-    return {
-      snippet: {
-        id: 0,
-        creatorId: 1,
-        taxonomy: input.taxonomy,
-        hidden: input.hidden,
-        title: input.title,
-        icon: input.icon,
-        sharedBy: input.sharedBy,
-        sharedOn: input.sharedOn,
-        summary: input.summary,
-        description: input.description,
-        href: input.href,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
-    }
+  async createSnippet(input: CreateSnippetInput): Promise<CreateSnippetOutput> {
+    const response = await fetch(
+      this.baseUrl + '/snippets',
+      this.defaultFetchArgs('POST', input)
+    );
+    const output: CreateSnippetOutput = await response.json();
+    parseSnippetDates(output.snippet);
+    return output;
   }
 
   /**
    * Lists existing snippets.
    * @param input describes constraints in the list snippets call.
+   * @returns the snippets.
    */
   async listSnippets(input: ListSnippetInput): Promise<ListSnippetOutput> {
     const response = await fetch(
@@ -170,8 +161,10 @@ export class HttpClient {
     };
 
     if (body != null) {
-      const t: T = {} as T;
-      console.log(t);
+      // it is tempting to try and remove any extraneous elements from
+      // the payload, however the Rust backend ignores them anyway so
+      // it's just a pointless exercise. maybe if we were pushing lots
+      // of data the savings would be werf.
       args.body = JSON.stringify(body);
     }
 

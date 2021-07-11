@@ -8,8 +8,9 @@ import { fromSimpleDate, toSimpleDate } from '../dateUtils';
 import { useState } from 'react';
 
 export interface IEditSnippetFormProps {
-  snippet: Snippet;
-  onSubmit: (values: ISnippetFormValues) => void;
+  title: string,
+  snippet: Snippet,
+  onSubmit: (values: ISnippetFormValues) => void,
 }
 
 const schema = yup.object().shape({
@@ -53,7 +54,7 @@ export default function SnippetForm(props: IEditSnippetFormProps) {
       <Form onSubmit={handleSubmit} action="#form">
         <Form.Row>
           <Col>
-            <h2>Create or update snippet</h2>
+            <h2>{props.title}</h2>
           </Col>
         </Form.Row>
         <Form.Row>
