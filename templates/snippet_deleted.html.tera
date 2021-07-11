@@ -1,7 +1,0 @@
-{% extends "layout.html.tera" %}
-{% block content %}
-<h2>Snippet deleted</h2>
-<p>
-  It's gone.
-</p>
-{% endblock %}
