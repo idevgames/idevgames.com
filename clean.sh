@@ -7,6 +7,7 @@
 # kind of store the project without deleting your
 # local repo
 
+du -chs target
 cargo clean
 find . -name "node_modules" -type d -prune | xargs du -chs
 

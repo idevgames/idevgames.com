@@ -84,7 +84,7 @@ export class HttpClient {
   async deleteSession(): Promise<DeleteSessionOutput> {
     const response = await fetch(
       this.baseUrl + '/session',
-      this.defaultFetchArgs('DELETE', null)
+      this.defaultFetchArgs('DELETE', {}),
     );
     return response.json();
   }
