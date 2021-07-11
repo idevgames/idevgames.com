@@ -187,6 +187,7 @@ server {
   access_log          off;
   add_header          Permissions-Policy interest-cohort=() always;
   root                /home/idevgames/static;
+  try_files           $uri $uri/ /index.html?$args;
   location /api {
     proxy_pass http://127.0.0.1:4000;
   }
