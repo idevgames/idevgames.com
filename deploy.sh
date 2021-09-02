@@ -21,7 +21,7 @@ docker run --rm --name idevgamesc \
   -u $(id -u ${USER}):$(id -g ${USER}) \
   -v $(pwd):/src \
   -w /src \
-  rust:1.53 \
+  rust:1.54 \
   cargo build --release
 
 pushd react-project
