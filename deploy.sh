@@ -19,9 +19,9 @@ ssh ${SERVICE_SU_USER}@${SERVICE_HOST} sudo apt-get install libssl1.1 libsqlite3
 # local machine happens to be running
 docker run --rm --name idevgamesc \
   -u $(id -u ${USER}):$(id -g ${USER}) \
-  -v $(pwd):/src \
+  -v $(pwd):/src:Z \
   -w /src \
-  rust:1.54 \
+  rust:1.57 \
   cargo build --release
 
 pushd react-project

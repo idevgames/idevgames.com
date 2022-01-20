@@ -27,6 +27,7 @@ preferences. Then install Brunch, a JS tool that compiles JS/SASS to things that
 are static and can be used by the browser.
 
 ```bash
+sudo dnf install g++
 pushd react-project
 npm i
 popd
